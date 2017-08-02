@@ -1,0 +1,12 @@
+---
+### Main configuration file of 1vs1 plugin
+
+## Enable\Disable prefix
+enable-prefix: "false"
+
+prefix: "[1vs1]"
+
+## set arena radius
+arena-radius: "25"
+
+...

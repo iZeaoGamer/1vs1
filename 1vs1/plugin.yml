@@ -1,0 +1,6 @@
+name: 1vs1
+api: [3.0.0-ALPHA7]
+version: 1.0.0
+author: CzechPMDevs
+description: Simple 1vs1 plugin for PocketMine
+main: 1vs1\Main
