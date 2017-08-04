@@ -3,4 +3,23 @@ api: [3.0.0-ALPHA7]
 version: 1.0.0
 author: CzechPMDevs
 description: Simple 1vs1 plugin for PocketMine
-main: 1vs1\Main
+main: OneVsOne\Main
+
+commands:
+  1vs1:
+    description: 1vs1 commands
+
+permissions:
+  1vs1:
+    description: All 1vs1 permissions
+    default: op
+    children:
+      1vs1.cmd:
+        description: All 1vs1 permissions for commands
+        default: op
+        children:
+          1vs1.cmd.help:
+            description: Permissions for /1vs1 help
+            default: op
+
+

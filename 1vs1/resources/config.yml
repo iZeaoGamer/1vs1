@@ -1,5 +1,15 @@
 ---
-### Main configuration file of 1vs1 plugin
+# ------------------------------------------------------------------
+
+#> Main configuration file of 1vs1 plugin
+
+# ------------------------------------------------------------------
+
+### 1vs1 plugin created by CzechPMDevs
+
+# official name: CzechPocketMineDevelopers
+# website: czechpmdevs.gq (indev)
+# github: github.com/CzechPMDevs/1vs1/
 
 ## Enable\Disable prefix
 enable-prefix: "false"
@@ -11,4 +21,15 @@ arena-radius: "25"
 
 ## join type is can be set to Sign or NPC
 join-type: "sign"
+
+### If type = sign
+sign-format:
+  line1: "§6[1vs1]"
+  line2: ""
+  line3: "§a§oclick to join"
+  line4: "§bmap: %1"
+
+## If type = NPC
+npc-format:
+  text: "§9Join 1vs1 battle"
 ...

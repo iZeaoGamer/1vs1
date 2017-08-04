@@ -12,6 +12,12 @@ use pocketmine\utils\Config;
  */
 class ConfigManager {
 
+    /** @var  Config $config */
+    public $config;
+
+    /** @var  Config $data */
+    public $data;
+
     /**
      * @return string $dataFolder
      */
@@ -30,13 +36,13 @@ class ConfigManager {
      * @return Config $config
      */
     public static function getConfig():Config {
-        return Main::getInstance()->getConfig();
+        return DataManager::get()->getConfig();
     }
 
     /**
      * @return Config $data
      */
     public static function getData():Config {
-        return new Config(self::getDataFolder()."/arenas.yml", Config::YAML);
+        return DataManager::get()->getData();
     }
 }

@@ -4,7 +4,9 @@ namespace OneVsOne;
 
 use OneVsOne\Arena\Arena;
 use OneVsOne\Arena\ArenaListener;
+use OneVsOne\Arena\JoinNPC;
 use OneVsOne\Util\ConfigManager;
+use OneVsOne\Util\DataManager;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
@@ -25,11 +27,22 @@ class Main extends PluginBase {
     /** @var  ArenaListener $arenaListener */
     public $arenaListener;
 
+    /** @var  ConfigManager $configManager */
+    public $configManager;
+
+    /** @var  DataManager $dataManager */
+    public $dataManager;
+
     /**
      * 1vs1 onEnable() function
      * @return void
      */
     public function onEnable() {
+        $this->arena = new Arena($this);
+        $this->arenaListener = new ArenaListener($this, $this->arena);
+        $this->configManager = new ConfigManager();
+        $this->dataManager = new DataManager($this);
+
         $this->getServer()->getPluginManager()->registerEvents(self::getArenaListner(), $this);
 
 
@@ -119,6 +132,10 @@ class Main extends PluginBase {
                     return false;
                 case "reload":
 
+                    return false;
+                case "joinnpc":
+                    $npc = new JoinNPC($this, $this->arena, $sender);
+                    $npc->spawn();
                     return false;
 
             }

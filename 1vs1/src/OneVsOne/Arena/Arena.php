@@ -16,7 +16,7 @@ class Arena {
     /** @var  array $arenas */
     public $arenas;
 
-    /** @var  string $names */
+    /** @var  string[] $names */
     public $players;
 
     /** @var  Main */
@@ -64,7 +64,14 @@ class Arena {
      * @return bool $bool
      */
     public function inGame(Player $player):bool {
-        $name = $player->getName();
         return $this->players[$player->getName()] == "ingame" ? true : false;
+    }
+
+    /**
+     * @param Player $player
+     * @param string $arena
+     */
+    public function teleportToArena(Player $player, string $arena) {
+        
     }
 }
