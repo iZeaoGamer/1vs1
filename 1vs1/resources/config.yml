@@ -6,7 +6,9 @@ enable-prefix: "false"
 
 prefix: "[1vs1]"
 
-## set arena radius
+## set arena maximum radius
 arena-radius: "25"
 
+## join type is can be set to Sign or NPC
+join-type: "sign"
 ...
