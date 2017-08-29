@@ -6,6 +6,7 @@ use OneVsOne\Main;
 use OneVsOne\Util\ConfigManager;
 use pocketmine\event\block\SignChangeEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\tile\Sign;
 
@@ -16,45 +17,22 @@ use pocketmine\tile\Sign;
  */
 class ArenaListener implements Listener {
 
-    /** @var  Arena $arena */
-    public $arena;
-
-    /** @var  Main $plugin */
+    /** @var  Arena $plugin */
     public $plugin;
 
     /**
      * ArenaListener constructor.
-     * @param Main $plugin
-     * @param Arena $arena
+     * @param Arena $plugin
      */
-    public function __construct(Main $plugin, Arena $arena) {
-        $this->arena = $arena;
+    public function __construct(Arena $plugin) {
         $this->plugin = $plugin;
     }
 
-    /**
-     * @param PlayerMoveEvent $event
-     */
-    public function onMove(PlayerMoveEvent $event) {
+    public function onCommandPreprocess(PlayerCommandPreprocessEvent $event) {
         $player = $event->getPlayer();
-        if($this->arena->inGame($player)) {
-
-        }
-    }
-
-    /**
-     * @param SignChangeEvent $event
-     */
-    public function onSignCreate(SignChangeEvent $event) {
-        $player = $event->getPlayer();
-        $tile = $player->getLevel()->getTile($event->getBlock());
-        if($player->hasPermission("1vs1.sign")) {
-            if($tile instanceof Sign) {
-                if($tile->getText()[0] == "[1vs1]") {
-                    $lines = ConfigManager::getConfig()->get("sign-format");
-                    $tile->setText($lines["line1"], $lines["line2"], $lines["line3"], $lines["line4"]);
-                }
-            }
+        $message = $event->getMessage();
+        if(str_replace("/", "", $message) != $message) {
+            $player->sendMessage("§aCommand!");
         }
     }
 }

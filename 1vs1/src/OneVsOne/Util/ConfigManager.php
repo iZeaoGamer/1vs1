@@ -4,7 +4,6 @@ namespace OneVsOne\Util;
 
 use OneVsOne\Main;
 use pocketmine\Server;
-use pocketmine\utils\Config;
 
 /**
  * Class ConfigManager
@@ -12,11 +11,39 @@ use pocketmine\utils\Config;
  */
 class ConfigManager {
 
-    /** @var  Config $config */
-    public $config;
+    /** @var  Main $plugin */
+    public $plugin;
 
-    /** @var  Config $data */
-    public $data;
+    /** @var  array $data */
+    public $configData;
+
+    /**
+     * ConfigManager constructor.
+     * @param Main $plugin
+     */
+    public function __construct(Main $plugin) {
+        $this->plugin = $plugin;
+    }
+
+    public function init() {
+        if(!is_dir(self::getDataFolder())) {
+            @mkdir(self::getDataFolder());
+        }
+        if(!is_file(self::getDataFolder()."/config.yml")) {
+            $this->plugin->saveResource("/config.yml");
+        }
+        if(!is_dir(self::getDataFolder()."arenas")) {
+            @mkdir(self::getDataFolder()."arenas");
+        }
+    }
+
+    /**
+     * @param string|mixed $data
+     * @return string
+     */
+    public function getConfigData(string $data):string {
+        return strval($this->configData[$data]);
+    }
 
     /**
      * @return string $dataFolder
@@ -30,19 +57,5 @@ class ConfigManager {
      */
     public static function getDataPath():string {
         return Server::getInstance()->getDataPath();
-    }
-
-    /**
-     * @return Config $config
-     */
-    public static function getConfig():Config {
-        return DataManager::get()->getConfig();
-    }
-
-    /**
-     * @return Config $data
-     */
-    public static function getData():Config {
-        return DataManager::get()->getData();
     }
 }

@@ -13,65 +13,61 @@ use pocketmine\Player;
  */
 class Arena {
 
-    /** @var  array $arenas */
-    public $arenas;
-
-    /** @var  string[] $names */
-    public $players;
-
-    /** @var  Main */
+    /** @var Main $plugin */
     public $plugin;
+
+    /** @var  ArenaListener $arenaListener */
+    public $arenaListener;
+
+    /** @var  Arena */
+    public $arenaScheduler;
+
+    /** @var  string $name */
+    public $name;
+
+    /**
+     * @var $pos1 Position
+     * @var $pos2 Position
+     */
+    public $pos1, $pos2;
+
+    /** @var  Player[] $players */
+    public $players = [];
+
+    /**
+     * @var int $phase
+     *
+     * 0 => lobby
+     * 1 => (full)
+     * 2 => ingame
+     * 3 => (restart)
+     */
+    public $phase = 0;
+
+    /** @var  int $time */
+    public $time = 0;
 
     /**
      * Arena constructor.
      * @param Main $plugin
-     */
-    public function __construct(Main $plugin) {
-        $this->plugin = $plugin;
-    }
-
-    /**
-     * @return void
-     */
-    public function reloadData() {
-        $data = ConfigManager::getData();
-
-    }
-
-    /**
      * @param string $name
-     * @param Position $pos
+     * @param Position $pos1
+     * @param Position $pos2
      */
-    public function addArena(string $name, Position $pos) {
-        $data = ConfigManager::getData();
-        if($this->arenaExists($name)) {
-            $this->arenas[$name]["pos"] = $pos;
-            $data->set($name, serialize($this->arenas[$name]));
-            $data->save();
-        }
-    }
-
-    /**
-     * @param string $arena
-     * @return bool $bool
-     */
-    public function arenaExists(string $arena):bool {
-        return isset($this->arenas[$arena]) ? true : false;
+    public function __construct(Main $plugin, string $name, Position $pos1, Position $pos2) {
+        $this->plugin = $plugin;
+        $this->name = $name;
+        $this->pos1 = $pos1;
+        $this->pos2 = $pos2;
+        $this->players = [];
+        $this->plugin->getServer()->getPluginManager()->registerEvents($this->arenaListener = new ArenaListener($this), $this->plugin);
+        $this->plugin->getServer()->getScheduler()->scheduleRepeatingTask($this->arenaScheduler = new ArenaScheduler($this), 20);
     }
 
     /**
      * @param Player $player
-     * @return bool $bool
      */
-    public function inGame(Player $player):bool {
-        return $this->players[$player->getName()] == "ingame" ? true : false;
-    }
+    public function teleportToArena(Player $player) {
 
-    /**
-     * @param Player $player
-     * @param string $arena
-     */
-    public function teleportToArena(Player $player, string $arena) {
-        
     }
 }

@@ -1,7 +1,8 @@
 name: 1vs1
 api: [3.0.0-ALPHA7]
-version: 1.0.0
+version: 1.0.0 [DEV]
 author: CzechPMDevs
+authors: [GamakCZ]
 description: Simple 1vs1 plugin for PocketMine
 main: OneVsOne\Main
 
@@ -20,6 +21,9 @@ permissions:
         children:
           1vs1.cmd.help:
             description: Permissions for /1vs1 help
+            default: op
+          1vs1.cmd.addarena:
+            description: Permissions for /1vs1 addarena
             default: op
 
 
