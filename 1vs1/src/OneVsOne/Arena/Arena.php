@@ -5,6 +5,7 @@ namespace OneVsOne\Arena;
 use OneVsOne\Main;
 use OneVsOne\Util\ConfigManager;
 use pocketmine\level\Position;
+use pocketmine\math\Vector3;
 use pocketmine\Player;
 
 /**
@@ -19,11 +20,14 @@ class Arena {
     /** @var  ArenaListener $arenaListener */
     public $arenaListener;
 
-    /** @var  Arena */
+    /** @var  ArenaScheduler $arenaScheduler */
     public $arenaScheduler;
 
     /** @var  string $name */
     public $name;
+
+    /** @var  Position|null $signpos */
+    public $signpos;
 
     /**
      * @var $pos1 Position
@@ -45,7 +49,7 @@ class Arena {
     public $phase = 0;
 
     /** @var  int $time */
-    public $time = 0;
+    public $startTime = 31, $gameTime = 301, $restartTime = 16;
 
     /**
      * Arena constructor.
@@ -68,6 +72,24 @@ class Arena {
      * @param Player $player
      */
     public function teleportToArena(Player $player) {
+        if(empty($this->players[0])) {
+            $player->teleport($this->pos1);
+        }
+        elseif(empty($this->players[1])) {
+            $player->teleport($this->pos2);
+        }
+        else {
+            $player->sendMessage("§cArenas are full");
+        }
+        $this->players[0] = $player;
+        if(count($this->players) > 1) {
+            foreach ($this->players as $players) {
+                $players->sendMessage("§7[2/2] §aPlayer {$player->getName()} joined.");
+            }
+        }
+        else {
+            $player->sendMessage("§7[1/2] §aPlayer {$player->getName()} joined.");
+        }
 
     }
 }

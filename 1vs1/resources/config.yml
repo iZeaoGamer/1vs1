@@ -12,24 +12,14 @@
 # github: github.com/CzechPMDevs/1vs1/
 
 ## Enable\Disable prefix
-enable-prefix: "false"
+enable-prefix: 'true'
 
-prefix: "[1vs1]"
+prefix: '§6[1vs1]'
 
-## set arena maximum radius
-arena-radius: "25"
+### Sign format
+SignLine-1: '§6§l[1vs1]'
+SignLine-2: '§3%count/2'
+SignLine-3: '§6Phase: %phase'
+SignLine-4: '§f§oArena: %arena'
 
-## join type is can be set to Sign or NPC
-join-type: "sign"
-
-### If type = sign
-sign-format:
-  line1: "§6[1vs1]"
-  line2: ""
-  line3: "§a§oclick to join"
-  line4: "§bmap: %1"
-
-## If type = NPC
-npc-format:
-  text: "§9Join 1vs1 battle"
 ...

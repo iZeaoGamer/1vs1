@@ -4,6 +4,7 @@ namespace OneVsOne;
 
 use OneVsOne\Arena\Arena;
 use OneVsOne\Arena\ArenaListener;
+use OneVsOne\Event\EventListener;
 use OneVsOne\Util\ConfigManager;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
@@ -30,6 +31,9 @@ class Main extends PluginBase {
     /** @var  ConfigManager $configManager */
     public $configManager;
 
+    /** @var  EventListener $eventListener */
+    public $eventListener;
+
     /** @var  array $waiting */
     public $waiting = [];
 
@@ -39,6 +43,7 @@ class Main extends PluginBase {
      */
     public function onEnable() {
         $this->configManager = new ConfigManager($this);
+        $this->getServer()->getPluginManager()->registerEvents($this->eventListener = new EventListener($this),$this);
         if(!is_dir($this->getDataFolder())) {
             @mkdir($this->getDataFolder());
         }
@@ -107,7 +112,7 @@ class Main extends PluginBase {
                         return false;
                     }
                     $name = $args[1];
-                    $sender->sendMessage("§aTo complete arena setup write /1vs1 setpos <1|2> <arena>");
+                    $sender->sendMessage("§aTo complete arena setup write /1vs1 setpos <1|2> <{$name}>");
 
                     return false;
                 case "setpos":
@@ -152,6 +157,10 @@ class Main extends PluginBase {
                     }
                     return false;
                 case "setjoinsign":
+                    if(!$sender->hasPermission("1vs1.cmd.setjoinsign")) {
+                        $sender->sendMessage("§cYou have not permissions to use this command");
+                        return false;
+                    }
                     if(empty($args[1])) {
                         $sender->sendMessage("§cUsage: §7/1vs1 setjoinsign <arena>");
                     }
