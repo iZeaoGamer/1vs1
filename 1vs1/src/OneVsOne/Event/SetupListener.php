@@ -60,6 +60,9 @@ class SetupListener implements Listener {
                             $player->sendMessage("§aPosition updated");
                             var_dump($arena->pos2);
                             break;
+                        default:
+                            $player->sendMessage("§cThere are only 2 positions.");
+                            break;
                     }
                     break;
                 case "updatesign":

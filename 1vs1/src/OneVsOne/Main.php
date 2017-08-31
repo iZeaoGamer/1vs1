@@ -40,20 +40,21 @@ class Main extends PluginBase {
      * @return void
      */
     public function onEnable() {
-        $this->configManager = new ConfigManager($this);
-        $this->getServer()->getPluginManager()->registerEvents($this->setupListener = new SetupListener($this), $this);
-        $this->getServer()->getPluginManager()->registerEvents($this->eventListener = new EventListener($this),$this);
-        if(!is_dir($this->getDataFolder())) {
-            @mkdir($this->getDataFolder());
+        try {
+            self::$instance = $this;
+            $this->configManager = new ConfigManager($this);
+            $this->configManager->init();
+            $this->getServer()->getPluginManager()->registerEvents($this->setupListener = new SetupListener($this), $this);
+            $this->configManager->loadArenas();
         }
-        if(!is_file($this->getDataFolder()."/config.yml")) {
-            $this->saveResource("/config.yml");
-            $this->getLogger()->debug("§aConfig not found, creating new config.");
+        catch (\Exception $exception) {
+            $this->getLogger()->debug("§cPlugin se nepodarilo nacist");
+            $this->getLogger()->debug($exception->getMessage()." line ". $exception->getLine() . "file " . $exception->getFile());
         }
-        if(!is_file($this->getDataFolder()."/arenas.yml")) {
-            $this->saveResource("/arenas.yml");
-            $this->getLogger()->debug("§aData not found, creating new data.");
-        }
+    }
+
+    public function onDisable() {
+        $this->configManager->saveAll();
     }
 
     /**

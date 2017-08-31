@@ -4,6 +4,7 @@ namespace OneVsOne\Util;
 
 use OneVsOne\Main;
 use pocketmine\Server;
+use pocketmine\utils\Config;
 
 /**
  * Class ConfigManager
@@ -34,6 +35,23 @@ class ConfigManager {
         }
         if(!is_dir(self::getDataFolder()."arenas")) {
             @mkdir(self::getDataFolder()."arenas");
+        }
+        $this->configData = $this->plugin->getConfig()->getAll();
+    }
+
+    public function loadArenas() {
+        foreach (glob(self::getDataFolder()."arenas/*.yml") as $arenaData) {
+            $this->plugin->getLogger()->debug("§aLoading {$arenaData} arena...");
+        }
+    }
+
+    public function saveAll() {
+        foreach ($this->plugin->arenas as $name => $arena) {
+            $config = new Config(self::getDataFolder()."areans/{$name}.yml", Config::YAML);
+            $config->set("pos1", serialize($arena->pos1));
+            $config->set("pos2", serialize($arena->pos2));
+            $config->set("signpos", serialize($arena->signpos));
+            $config->save();
         }
     }
 
