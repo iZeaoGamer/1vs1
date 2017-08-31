@@ -3,9 +3,8 @@
 namespace OneVsOne\Arena;
 
 use OneVsOne\Main;
-use OneVsOne\Util\ConfigManager;
+use pocketmine\item\Item;
 use pocketmine\level\Position;
-use pocketmine\math\Vector3;
 use pocketmine\Player;
 
 /**
@@ -41,12 +40,13 @@ class Arena {
     /**
      * @var int $phase
      *
-     * 0 => lobby
-     * 1 => (full)
-     * 2 => ingame
-     * 3 => (restart)
+     * 0 => setup
+     * 1 => lobby
+     * 2 => (full)
+     * 3 => ingame
+     * 4 => (restart)
      */
-    public $phase = 0;
+    public $phase = 1;
 
     /** @var  int $time */
     public $startTime = 31, $gameTime = 301, $restartTime = 16;
@@ -57,8 +57,10 @@ class Arena {
      * @param string $name
      * @param Position $pos1
      * @param Position $pos2
+     * @param int $phase
      */
-    public function __construct(Main $plugin, string $name, Position $pos1, Position $pos2) {
+    public function __construct(Main $plugin, string $name, Position $pos1, Position $pos2, int $phase = 0) {
+        $this->phase = $phase;
         $this->plugin = $plugin;
         $this->name = $name;
         $this->pos1 = $pos1;
@@ -82,14 +84,18 @@ class Arena {
             $player->sendMessage("§cArenas are full");
         }
         $this->players[0] = $player;
-        if(count($this->players) > 1) {
-            foreach ($this->players as $players) {
-                $players->sendMessage("§7[2/2] §aPlayer {$player->getName()} joined.");
-            }
+        $count = count($this->players);
+        foreach ($this->players as $players) {
+            $players->sendMessage("§7[{$count}/2] §aPlayer {$player->getName()} joined.");
         }
-        else {
-            $player->sendMessage("§7[1/2] §aPlayer {$player->getName()} joined.");
-        }
-
+        $player->setGamemode($player::ADVENTURE);
+        $player->setHealth(20);
+        $player->setFood(20);
+        $player->getInventory()->clearAll();
+        $inv = $player->getInventory();
+        $inv->setHelmet(Item::get(Item::IRON_HELMET));
+        $inv->setChestplate(Item::get(Item::IRON_CHESTPLATE));
+        $inv->setLeggings(Item::get(Item::IRON_LEGGINGS));
+        $inv->setBoots(Item::IRON_BOOTS);
     }
 }

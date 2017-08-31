@@ -5,6 +5,7 @@ namespace OneVsOne;
 use OneVsOne\Arena\Arena;
 use OneVsOne\Arena\ArenaListener;
 use OneVsOne\Event\EventListener;
+use OneVsOne\Event\SetupListener;
 use OneVsOne\Util\ConfigManager;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
@@ -25,17 +26,14 @@ class Main extends PluginBase {
     /** @var  Arena[] $arenas */
     public $arenas;
 
-    /** @var  ArenaListener $arenaListener */
-    public $arenaListener;
-
     /** @var  ConfigManager $configManager */
     public $configManager;
 
     /** @var  EventListener $eventListener */
     public $eventListener;
 
-    /** @var  array $waiting */
-    public $waiting = [];
+    /** @var  SetupListener $setupListener */
+    public $setupListener;
 
     /**
      * 1vs1 onEnable() function
@@ -43,6 +41,7 @@ class Main extends PluginBase {
      */
     public function onEnable() {
         $this->configManager = new ConfigManager($this);
+        $this->getServer()->getPluginManager()->registerEvents($this->setupListener = new SetupListener($this), $this);
         $this->getServer()->getPluginManager()->registerEvents($this->eventListener = new EventListener($this),$this);
         if(!is_dir($this->getDataFolder())) {
             @mkdir($this->getDataFolder());
@@ -96,7 +95,14 @@ class Main extends PluginBase {
             }
             switch (strtolower($args[0])) {
                 case "help":
-
+                    if(!$sender->hasPermission("1vs1.cmd.help")) {
+                        $sender->sendMessage("§cYou have not permissions to use this command");
+                        return false;
+                    }
+                    $sender->sendMessage("§7-- == [ 1vs1 ] == --\n".
+                    "§7/1vs1 addarena : add arena\n".
+                    "§7/1vs1 setpos : set arena join pos\n".
+                    "§7/1vs1 setsignpos : set joinsign pos");
                     return false;
                 case "addarena":
                     if(!$sender->hasPermission("1vs1.cmd.addarena")) {
@@ -111,50 +117,30 @@ class Main extends PluginBase {
                         $sender->sendMessage("§cArena {$args[1]} already exists!");
                         return false;
                     }
-                    $name = $args[1];
-                    $sender->sendMessage("§aTo complete arena setup write /1vs1 setpos <1|2> <{$name}>");
-
+                    $this->arenas[$args[1]] = new Arena($this, $args[1], new Position(0,100,0, $this->getServer()->getDefaultLevel()), new Position(0,100,0, $this->getServer()->getDefaultLevel()), 0);
+                    $sender->sendMessage("§aTo complete arena setup write /1vs1 set <arena>");
                     return false;
-                case "setpos":
-                    if(!$sender->hasPermission("1vs1.cmd.setpos")) {
+                case "set":
+                    if(!$sender->hasPermission("1vs1.cmd.addarena")) {
                         $sender->sendMessage("§cYou have not permissions to use this command");
                         return false;
                     }
-                    if(empty($args[1]) || empty($args[2])) {
-                        $sender->sendMessage("§cUsage: §7/1vs1 setpos <pos: 1|2> <arena>");
+                    if(empty($args[1])) {
+                        $sender->sendMessage("§cUsage: §7/1vs1 set <arena>");
                         return false;
                     }
-                    if(empty($this->waiting[$args[2]])) {
-                        $sender->sendMessage("§cArena {$args[2]} does not exists!");
-                        return false;
-                    }
-                    if(!in_array(strval($args[1]), ["1","2"])) {
-                        $sender->sendMessage("§cUsage: §7/1vs1 setpos <pos: 1|2> <arena>");
-                        return false;
-                    }
-                    $this->waiting[$args[2]][strval($args[1])] = new Position($sender->getX(), $sender->getY(), $sender->getZ(), $sender->getLevel());
-                    $index = strval($args[1]) == "1" ? "2" : "1";
-                    if(isset($this->waiting[$args[2]][$index])) {
-                        $data1 = $this->waiting[$args[2][strval($args[1])]];
-                        $data2 = $this->waiting[$args[2]][$index];
-                        if($data2 instanceof Position && $data1 instanceof Position) {
-                            if($data2->getLevel()->getName() == $data1->getLevel()->getName()) {
-                                $sender->sendMessage("§aArena successfully registered!");
-                                $this->arenas[$args[2]] = new Arena($this, $args[2], $data1, $data2);
-                            }
-                            else {
-                                $sender->sendMessage("§aPositions must be in same level");
-                            }
-                        }
-                        else {
-                            $sender->sendMessage("§cBUG #1");
-                            var_dump($data1);
-                            var_dump($data2);
+                    try {
+                        if(!($this->arenas[$args[1]] instanceof Arena)) {
+                            $sender->sendMessage("§cArena {$args[1]} does not exists!");
+                            return false;
                         }
                     }
-                    else {
-                        $sender->sendMessage("§a{$args[1]}. position selected, use §7/1vs1 {$index} {$args[2]}§a to finish arena setup.");
+                    catch (\Exception $exception) {
+                        $sender->sendMessage("§cArena {$args[1]} does not exists!");
+                        return false;
                     }
+                    $this->setupListener->players[strtolower($sender->getName())] = $args[1];
+                    $sender->sendMessage("§aYou are now in setup mode!");
                     return false;
                 case "setjoinsign":
                     if(!$sender->hasPermission("1vs1.cmd.setjoinsign")) {
@@ -163,6 +149,7 @@ class Main extends PluginBase {
                     }
                     if(empty($args[1])) {
                         $sender->sendMessage("§cUsage: §7/1vs1 setjoinsign <arena>");
+                        return false;
                     }
                     return false;
 

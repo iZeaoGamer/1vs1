@@ -34,11 +34,18 @@ class ArenaScheduler extends Task {
                 $this->countdown();
                 $this->sendInfo();
                 break;
+            // full
             case 1:
+                $this->updateSigns();
+                $this->countdown();
                 break;
             case 2:
+                $this->updateSigns();
+                $this->countdown();
                 break;
             case 3:
+                $this->updateSigns();
+                $this->countdown();
                 break;
         }
     }
@@ -46,23 +53,26 @@ class ArenaScheduler extends Task {
     function countdown() {
         switch ($this->plugin->phase) {
             case 0:
+                // lobby
                 if(count($this->plugin->players) > 1) {
-                    $this->plugin->startTime = $this->plugin->startTime-1;
                 }
                 break;
             case 1:
+                // full
                 if(count($this->plugin->players) > 1) {
                     $this->plugin->startTime = $this->plugin->startTime-1;
                 }
                 break;
             case 2:
+                // ingame
                 if(count($this->plugin->players) > 1) {
-                    $this->plugin->startTime = $this->plugin->startTime-1;
+                    $this->plugin->gameTime = $this->plugin->gameTime-1;
                 }
                 break;
             case 3:
+                // restart
                 if(count($this->plugin->players) > 1) {
-                    $this->plugin->startTime = $this->plugin->startTime-1;
+                    $this->plugin->restartTime = $this->plugin->restartTime-1;
                 }
                 break;
         }
