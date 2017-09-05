@@ -28,6 +28,9 @@ class ArenaScheduler extends Task {
      */
     public function onRun(int $currentTick) {
         switch ($this->plugin->phase) {
+            case 0:
+                $this->updateSigns();
+                break;
             // lobby
             case 1:
                 $this->updateSigns();

@@ -45,5 +45,9 @@ class ArenaListener implements Listener {
     }
 
     public function onCommandPreprocess(PlayerCommandPreprocessEvent $event) {
+        if(strpos($event->getMessage(), "/") === 0) {
+            $event->setCancelled();
+            $event->getPlayer()->sendMessage("§cUse /1vs1 leave to leave match");
+        }
     }
 }

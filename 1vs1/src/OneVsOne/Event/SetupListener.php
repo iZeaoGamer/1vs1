@@ -3,6 +3,7 @@
 namespace OneVsOne\Event;
 
 use OneVsOne\Main;
+use pocketmine\block\Block;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
@@ -53,12 +54,10 @@ class SetupListener implements Listener {
                         case "1":
                             $arena->pos1 = $player->getPosition();
                             $player->sendMessage("§aPosition updated");
-                            var_dump($arena->pos1);
                             break;
                         case "2":
                             $arena->pos2 = $player->getPosition();
                             $player->sendMessage("§aPosition updated");
-                            var_dump($arena->pos2);
                             break;
                         default:
                             $player->sendMessage("§cThere are only 2 positions.");
@@ -66,7 +65,7 @@ class SetupListener implements Listener {
                     }
                     break;
                 case "updatesign":
-                    $this->updates[strtolower($player->getName())] = "Sign";
+                    $this->updates[strtolower($player->getName())] = 1;
                     $player->sendMessage("§aBreak the sign to complete setup!");
                     break;
                 case "done":
@@ -87,13 +86,13 @@ class SetupListener implements Listener {
     public function onBreak(BlockBreakEvent $event) {
         $player = $event->getPlayer();
         $arena = $this->plugin->arenas[$this->players[strtolower($player->getName())]];
-        if($this->updates[strtolower($player->getName())] == "Sign") {
-            if($event->getBlock()->getId() == 63) {
+        if($this->updates[strtolower($player->getName())] == 1) {
+            if($event->getBlock()->getId() == Block::STANDING_SIGN) {
                 $player->sendMessage("§aSign successfully set.");
                 $index = (array_search(strtolower($player->getName()), $this->updates))-1;
                 unset($this->updates[$index]);
                 $arena->signpos = $event->getBlock()->asPosition();
-                $this->updates[strtolower($player->getName())] = null;
+                unset($this->updates[strtolower($player->getName())]);
             }
             else {
                 $player->sendMessage("§cBlock is not sign.");
