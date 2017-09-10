@@ -5,6 +5,8 @@ namespace OneVsOne\Arena;
 use OneVsOne\Main;
 use OneVsOne\Util\ConfigManager;
 use pocketmine\event\block\SignChangeEvent;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\player\PlayerInteractEvent;
@@ -54,6 +56,28 @@ class ArenaListener implements Listener {
     public function onQuit(PlayerQuitEvent $event) {
         if(isset($this->plugin->players[strtolower($event->getPlayer()->getName())])) {
             unset($this->plugin->players[strtolower($event->getPlayer()->getName())]);
+        }
+    }
+
+    /**
+     * @param EntityDamageEvent $event
+     */
+    public function onDamage(EntityDamageEvent $event) {
+        $entity = $event->getEntity();
+        if($entity instanceof Player) {
+            $ingame = false;
+            foreach ($this->plugin->players as $player) {
+                if($player->getName() == $entity->getName()) {
+                    $ingame = true;
+                }
+            }
+            if($ingame == true) {
+                if($event instanceof EntityDamageByEntityEvent) {
+                    if($this->plugin->phase != 2) {
+                        $event->setCancelled(true);
+                    }
+                }
+            }
         }
     }
 

@@ -15,6 +15,9 @@ class ArenaScheduler extends Task {
     /** @var  Arena $plugin */
     public $plugin;
 
+    /** @var  int $debug */
+    public $debug = 1;
+
     /**
      * ArenaScheduler constructor.
      * @param Arena $plugin
@@ -27,6 +30,7 @@ class ArenaScheduler extends Task {
      * @param int $currentTick
      */
     public function onRun(int $currentTick) {
+        $this->infoDebug();
         switch ($this->plugin->phase) {
             case 0:
                 $this->updateSigns();
@@ -53,7 +57,23 @@ class ArenaScheduler extends Task {
         }
     }
 
-    function countdown() {
+    public function infoDebug() {
+        $players = [];
+        foreach ($this->plugin->players as $player) {
+            array_push($players, $player->getName());
+        }
+        $logger = $this->plugin->plugin;
+        $logger->getLogger()->debug("§6Debug ".$this->debug.":");
+        $logger->getLogger()->debug("players: ".count($this->plugin->players). ": ".implode(", ", $players));
+        $logger->getLogger()->debug("phase: ".$this->plugin->phase);
+        $logger->getLogger()->debug("arena: ".$this->plugin->name);
+        $logger->getLogger()->debug("startTime: ".$this->plugin->startTime);
+        $logger->getLogger()->debug("gameTime: ".$this->plugin->gameTime);
+        $logger->getLogger()->debug("restartTime: ".$this->plugin->restartTime);
+        $this->debug++;
+    }
+
+    public function countdown() {
         switch ($this->plugin->phase) {
             case 0:
                 break;
@@ -84,7 +104,7 @@ class ArenaScheduler extends Task {
         }
     }
 
-    function sendInfo() {
+    public function sendInfo() {
         foreach ($this->plugin->players as $player) {
             switch ($this->plugin->phase) {
                 case 0:
@@ -150,7 +170,7 @@ class ArenaScheduler extends Task {
         }
     }
 
-    function updateSigns() {
+    public function updateSigns() {
         $signPos = $this->plugin->signpos;
         if($signPos instanceof Position) {
             $level = $signPos->getLevel();

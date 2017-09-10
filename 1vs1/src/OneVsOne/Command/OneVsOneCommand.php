@@ -99,7 +99,7 @@ class OneVsOneCommand extends Command implements PluginIdentifiableCommand {
                     $sender->sendMessage("§cArena {$args[1]} does not exists!");
                     return;
                 }
-                $this->plugin->arenas[strtolower($args[1])]->phase = 0;
+                $this->plugin->arenas[$args[1]]->phase = 0;
                 $this->plugin->setupListener->players[strtolower($sender->getName())] = $args[1];
                 $sender->sendMessage("§aYou are now in setup mode!");
                 return;

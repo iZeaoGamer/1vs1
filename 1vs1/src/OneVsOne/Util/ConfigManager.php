@@ -67,7 +67,7 @@ class ConfigManager {
 
     public function saveAll() {
         foreach ($this->plugin->arenas as $name => $arena) {
-            $config = new Config(self::getDataFolder()."areans/{$name}.yml", Config::YAML);
+            $config = new Config(self::getDataFolder()."arenas/{$name}.yml", Config::YAML);
             $config->set("pos1", [$arena->pos1->getX(), $arena->pos1->getY(), $arena->pos1->getZ(), $arena->pos1->getLevel()->getName()]);
             $config->set("pos2", [$arena->pos2->getX(), $arena->pos2->getY(), $arena->pos2->getZ(), $arena->pos2->getLevel()->getName()]);
             $config->set("signpos", [$arena->signpos->getX(), $arena->signpos->getY(), $arena->signpos->getZ(), $arena->signpos->getLevel()->getName()]);
