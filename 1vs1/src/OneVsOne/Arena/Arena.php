@@ -87,11 +87,14 @@ class Arena {
             case 4:
                 return;
         }
-        //$this->players[0] = $player;
-        /* (.-.) */
-        //empty($this->players[0]) ? $this->players[0] = $player : empty($this->players[1]) ? $this->players[1] = $player : $this->players[0] = $player;
-        $this->players[strtolower($player->getName())];
+        $this->players[strtolower($player->getName())] = $player;
         $count = count($this->players);
+        if($count == 1) {
+            $player->teleport($this->pos2);
+        }
+        else {
+            $player->teleport($this->pos1);
+        }
         foreach ($this->players as $players) {
             $players->sendMessage("§7[{$count}/2] §aPlayer {$player->getName()} joined.");
         }
