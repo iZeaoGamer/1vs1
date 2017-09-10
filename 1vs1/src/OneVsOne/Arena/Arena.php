@@ -96,6 +96,6 @@ class Arena {
         $inv->setHelmet(Item::get(Item::IRON_HELMET));
         $inv->setChestplate(Item::get(Item::IRON_CHESTPLATE));
         $inv->setLeggings(Item::get(Item::IRON_LEGGINGS));
-        $inv->setBoots(Item::IRON_BOOTS);
+        $inv->setBoots(Item::get(Item::IRON_BOOTS));
     }
 }

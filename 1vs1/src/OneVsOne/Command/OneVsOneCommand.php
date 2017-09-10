@@ -29,6 +29,7 @@ class OneVsOneCommand extends Command implements PluginIdentifiableCommand {
      * @param array $aliases
      */
     public function __construct($name = "1vs1", $description = "1vs1 commands", $usageMessage = null, $aliases = ["1v1", "11"]) {
+        $this->plugin = Main::getInstance();
         parent::__construct($name, $description, $usageMessage, $aliases);
     }
 
@@ -60,8 +61,8 @@ class OneVsOneCommand extends Command implements PluginIdentifiableCommand {
                 }
                 $sender->sendMessage("§7-- == [ 1vs1 ] == --\n".
                     "§7/1vs1 addarena : add arena\n".
-                    "§7/1vs1 setpos : set arena join pos\n".
-                    "§7/1vs1 setsignpos : set joinsign pos");
+                    "§7/1vs1 set : set arena\n".
+                    "§7/1vs1 leave : leave arena");
                 return;
             case "addarena":
                 if(!$sender->hasPermission("1vs1.cmd.addarena")) {
