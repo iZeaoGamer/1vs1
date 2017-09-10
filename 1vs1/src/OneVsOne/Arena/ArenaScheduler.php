@@ -125,13 +125,15 @@ class ArenaScheduler extends Task {
     function getPhase() {
         switch ($this->plugin->phase) {
             case 0:
-                return "§aLobby";
+                return "§4Setup";
             case 1:
-                return "§6Full";
+                return "§aLobby";
             case 2:
-                return "§3InGame";
+                return "§6Full";
             case 3:
-                return "§bRestart";
+                return "§5InGame";
+            case 4:
+                return "§3Restarting...";
             default:
                 return "§aLobby";
         }

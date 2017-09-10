@@ -75,7 +75,7 @@ class SetupListener implements Listener {
                 case "enable":
                     $arena->phase = 1;
                     $player->sendMessage("§aArena enabled.");
-                    return;
+                    break;
                 default:
                     $player->sendMessage("§7Use §8help §7to display setup commands, §8done §7to leave setup mode.");
                     break;
@@ -90,11 +90,9 @@ class SetupListener implements Listener {
     public function onBreak(BlockBreakEvent $event) {
         $player = $event->getPlayer();
         $arena = $this->plugin->arenas[$this->players[strtolower($player->getName())]];
-        if($this->updates[strtolower($player->getName())] == 1) {
+        if(isset($this->updates[strtolower($player->getName())]) && $this->updates[strtolower($player->getName())] == 1) {
             if($event->getBlock()->getId() == Block::STANDING_SIGN) {
                 $player->sendMessage("§aSign successfully set.");
-                $index = (array_search(strtolower($player->getName()), $this->updates))-1;
-                unset($this->updates[$index]);
                 $arena->signpos = $event->getBlock()->asPosition();
                 unset($this->updates[strtolower($player->getName())]);
                 $event->setCancelled(true);

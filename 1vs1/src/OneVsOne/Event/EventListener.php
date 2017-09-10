@@ -39,18 +39,4 @@ class EventListener implements Listener {
             }
         }
     }
-
-    /**
-     * @param PlayerInteractEvent $event
-     */
-    public function onTouch(PlayerInteractEvent $event) {
-        $player = $event->getPlayer();
-        $tile = $event->getPlayer()->getLevel()->getTile($event->getBlock());
-        if($tile instanceof Sign) {
-            $arena = $this->getArenaBySign($tile->asPosition());
-            if($arena instanceof Arena) {
-                $arena->teleportToArena($player);
-            }
-        }
-    }
 }

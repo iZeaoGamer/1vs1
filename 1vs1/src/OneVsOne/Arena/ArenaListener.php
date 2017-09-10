@@ -35,8 +35,15 @@ class ArenaListener implements Listener {
      */
     public function onTouch(PlayerInteractEvent $event) {
         $player = $event->getPlayer();
-        if(serialize($this->plugin->signpos) == serialize($event->getBlock()->asPosition())) {
+        $pos1 = $this->plugin->signpos;
+        $pos2 = $event->getBlock()->asPosition();
+        /*if($pos1->getX() == $pos2->getX() && $pos1->getY() == $pos2->getY() && $pos1->getZ() == $pos2->getZ() && $pos2->getLevel()) {
             $this->plugin->teleportToArena($player);
+        }*/
+        if($pos1 != null) {
+            if($pos1->equals($pos2->asVector3()) && $pos1->getLevel()->getName() == $pos2->getLevel()->getName()) {
+                $this->plugin->teleportToArena($player);
+            }
         }
     }
 
@@ -52,8 +59,10 @@ class ArenaListener implements Listener {
         if(strpos($event->getMessage(), "/") === 0) {
             if($this->plugin->phase != 0) {
                 if($event->getMessage() != "/1vs1 leave") {
-                    $event->setCancelled();
-                    $event->getPlayer()->sendMessage("§cUse /1vs1 leave to leave match");
+                    if($event->getPlayer()->getLevel()->getName() == $this->plugin->pos1->getLevel()->getName()) {
+                        $event->setCancelled();
+                        $event->getPlayer()->sendMessage("§cUse /1vs1 leave to leave match");
+                    }
                 }
             }
         }

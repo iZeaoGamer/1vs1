@@ -17,9 +17,9 @@ enable-prefix: 'true'
 prefix: '§6[1vs1]'
 
 ### Sign format
-SignLine-1: '§6§l[1vs1]'
-SignLine-2: '§3%count/2'
-SignLine-3: '§6Phase: %phase'
+SignLine-1: '§6§l[ 1vs1 ]'
+SignLine-2: '§9[ §3%count §b/ §32 §9]'
+SignLine-3: '§bStatus: %phase'
 SignLine-4: '§f§oArena: %arena'
 
 ...
