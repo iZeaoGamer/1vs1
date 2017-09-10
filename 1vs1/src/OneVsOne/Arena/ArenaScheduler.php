@@ -60,6 +60,7 @@ class ArenaScheduler extends Task {
             case 1:
                 // lobby
                 if(count($this->plugin->players) > 1) {
+                    $this->plugin->phase = 2;
                 }
                 break;
             case 2:
@@ -85,10 +86,19 @@ class ArenaScheduler extends Task {
 
     function sendInfo() {
         foreach ($this->plugin->players as $player) {
-
             switch ($this->plugin->phase) {
                 case 0:
+                    // setup
+                    break;
+                case 1:
                     $startTime = intval($this->plugin->startTime);
+                    $player->setXpLevel($this->plugin->startTime);
+                    $player->setXpProgress(1/$this->plugin->startTime);
+
+                    if(count($this->plugin->players) <= 1) {
+                        $player->sendPopup("§7You need more players...");
+                    }
+
                     switch ($startTime) {
                         case 30:
                         case 25:
@@ -105,6 +115,9 @@ class ArenaScheduler extends Task {
                             $player->addTitle("§aBattle started!");
                             break;
                     }
+                    break;
+                case 2:
+
                     break;
             }
         }

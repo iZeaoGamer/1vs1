@@ -10,6 +10,7 @@ use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\Player;
 use pocketmine\tile\Sign;
 
 /**
@@ -47,9 +48,13 @@ class ArenaListener implements Listener {
         }
     }
 
-
+    /**
+     * @param PlayerQuitEvent $event
+     */
     public function onQuit(PlayerQuitEvent $event) {
-
+        if(isset($this->plugin->players[strtolower($event->getPlayer()->getName())])) {
+            unset($this->plugin->players[strtolower($event->getPlayer()->getName())]);
+        }
     }
 
     /**
@@ -67,6 +72,7 @@ class ArenaListener implements Listener {
                 else {
                     if(in_array($event->getPlayer(), $this->plugin->players)) {
                         unset($this->plugin->players[strtolower($event->getPlayer()->getName())]);
+                        $event->getPlayer()->setGamemode(Player::SURVIVAL);
                         $event->getPlayer()->getInventory()->clearAll();
                         $event->getPlayer()->removeAllEffects();
                         $event->getPlayer()->teleport($this->plugin->plugin->getServer()->getDefaultLevel()->getSpawnLocation());

@@ -99,25 +99,9 @@ class OneVsOneCommand extends Command implements PluginIdentifiableCommand {
                     $sender->sendMessage("§cArena {$args[1]} does not exists!");
                     return;
                 }
+                $this->plugin->arenas[strtolower($args[1])]->phase = 0;
                 $this->plugin->setupListener->players[strtolower($sender->getName())] = $args[1];
                 $sender->sendMessage("§aYou are now in setup mode!");
-                return;
-            case "setjoinsign":
-                if(!$sender->hasPermission("1vs1.cmd.setjoinsign")) {
-                    $sender->sendMessage("§cYou have not permissions to use this command");
-                    return;
-                }
-                if(empty($args[1])) {
-                    $sender->sendMessage("§cUsage: §7/1vs1 setjoinsign <arena>");
-                    return;
-                }
-                return;
-            case "leave":
-                if(!$sender->hasPermission("1vs1.cmd.leave")) {
-                    $sender->sendMessage("§cYou have not permissions to use this command");
-                    return;
-                }
-                $sender->sendMessage("§csoon... (try to use /reload)");
                 return;
             default:
                 $sender->sendMessage("§cUsage: §7/1vs1 help");
