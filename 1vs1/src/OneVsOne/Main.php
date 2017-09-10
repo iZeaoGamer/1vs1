@@ -4,6 +4,7 @@ namespace OneVsOne;
 
 use OneVsOne\Arena\Arena;
 use OneVsOne\Arena\ArenaListener;
+use OneVsOne\Command\OneVsOneCommand;
 use OneVsOne\Event\EventListener;
 use OneVsOne\Event\SetupListener;
 use OneVsOne\Util\ConfigManager;
@@ -35,6 +36,9 @@ class Main extends PluginBase {
     /** @var  SetupListener $setupListener */
     public $setupListener;
 
+    /** @var  OneVsOneCommand $oneVsOneCommand */
+    public $oneVsOneCommand;
+
     /**
      * 1vs1 onEnable() function
      * @return void
@@ -46,6 +50,7 @@ class Main extends PluginBase {
             $this->configManager->init();
             $this->getServer()->getPluginManager()->registerEvents($this->setupListener = new SetupListener($this), $this);
             $this->configManager->loadArenas();
+            $this->getServer()->getCommandMap()->register("1vs1", $this->oneVsOneCommand = new OneVsOneCommand());
         }
         catch (\Exception $exception) {
             $this->getLogger()->debug("§cPlugin se nepodarilo nacist");
@@ -71,14 +76,14 @@ class Main extends PluginBase {
         return self::$instance;
     }
 
-    /**
+    /*.*
      * @param CommandSender $sender
      * @param Command $command
      * @param string $label
      * @param array $args
      * @return bool
      */
-    public function onCommand(CommandSender $sender, Command $command, string $label, array $args):bool {
+    /*public function onCommand(CommandSender $sender, Command $command, string $label, array $args):bool {
         $cmd = strtolower($command->getName());
         if(!($sender instanceof Player)) {
             $sender->sendMessage("§cUse this command in game!");
@@ -156,5 +161,5 @@ class Main extends PluginBase {
 
             }
         }
-    }
+    }*/
 }

@@ -40,14 +40,22 @@ class ArenaListener implements Listener {
         }
     }
 
+
     public function onQuit(PlayerQuitEvent $event) {
 
     }
 
+    /**
+     * @param PlayerCommandPreprocessEvent $event
+     */
     public function onCommandPreprocess(PlayerCommandPreprocessEvent $event) {
         if(strpos($event->getMessage(), "/") === 0) {
-            $event->setCancelled();
-            $event->getPlayer()->sendMessage("§cUse /1vs1 leave to leave match");
+            if($this->plugin->phase != 0) {
+                if($event->getMessage() != "/1vs1 leave") {
+                    $event->setCancelled();
+                    $event->getPlayer()->sendMessage("§cUse /1vs1 leave to leave match");
+                }
+            }
         }
     }
 }
