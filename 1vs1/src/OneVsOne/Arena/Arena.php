@@ -85,6 +85,7 @@ class Arena {
                 $player->sendMessage("§cArena is InGame");
                 return;
             case 4:
+                $player->sendMessage("§cArena restarting...");
                 return;
         }
         $this->players[strtolower($player->getName())] = $player;
