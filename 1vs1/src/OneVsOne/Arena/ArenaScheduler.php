@@ -91,14 +91,14 @@ class ArenaScheduler extends Task {
                     // setup
                     break;
                 case 1:
-                    $startTime = intval($this->plugin->startTime);
+                    // lobby
                     $player->setXpLevel($this->plugin->startTime);
-                    $player->setXpProgress(1/$this->plugin->startTime);
-
                     if(count($this->plugin->players) <= 1) {
                         $player->sendPopup("§7You need more players...");
                     }
-
+                    break;
+                case 2:
+                    $startTime = intval($this->plugin->startTime);
                     switch ($startTime) {
                         case 30:
                         case 25:
@@ -109,15 +109,13 @@ class ArenaScheduler extends Task {
                         case 3:
                         case 2:
                         case 1:
-                            $player->sendMessage("§7Game starts in {$startTime}");
+                            $player->sendMessage("§7Battle starts in {$startTime}");
                             break;
                         case 0:
                             $player->addTitle("§aBattle started!");
                             break;
                     }
-                    break;
-                case 2:
-
+                    // full (countdown)
                     break;
             }
         }
