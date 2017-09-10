@@ -144,10 +144,10 @@ class ArenaScheduler extends Task {
             $tile = $level->getTile($signPos->asVector3());
             if($tile instanceof Sign) {
                 $configManager = $this->plugin->plugin->configManager;
-                $tile->setText($configManager->getConfigData("SignLine-1"),
-                    $configManager->getConfigData("SignLine-2"),
-                    $configManager->getConfigData("SignLine-3"),
-                    $configManager->getConfigData("SignLine-4"));
+                $tile->setText($this->translateSigns($configManager->getConfigData("SignLine-1")),
+                    $this->translateSigns($configManager->getConfigData("SignLine-2")),
+                    $this->translateSigns($configManager->getConfigData("SignLine-3")),
+                    $this->translateSigns($configManager->getConfigData("SignLine-4")));
             }
         }
     }

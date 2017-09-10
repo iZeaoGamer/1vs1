@@ -112,6 +112,9 @@ class OneVsOneCommand extends Command implements PluginIdentifiableCommand {
                     return;
                 }
                 return;
+            default:
+                $sender->sendMessage("§cUsage: §7/1vs1 help");
+                return;
 
         }
     }

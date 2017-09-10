@@ -72,6 +72,10 @@ class SetupListener implements Listener {
                     unset($this->players[strtolower($player->getName())]);
                     $player->sendMessage("§aSuccessfully leaved setup mode!");
                     break;
+                case "enable":
+                    $arena->phase = 1;
+                    $player->sendMessage("§aArena enabled.");
+                    return;
                 default:
                     $player->sendMessage("§7Use §8help §7to display setup commands, §8done §7to leave setup mode.");
                     break;
@@ -93,6 +97,7 @@ class SetupListener implements Listener {
                 unset($this->updates[$index]);
                 $arena->signpos = $event->getBlock()->asPosition();
                 unset($this->updates[strtolower($player->getName())]);
+                $event->setCancelled(true);
             }
             else {
                 $player->sendMessage("§cBlock is not sign.");
