@@ -3,17 +3,10 @@
 namespace OneVsOne;
 
 use OneVsOne\Arena\Arena;
-use OneVsOne\Arena\ArenaListener;
 use OneVsOne\Command\OneVsOneCommand;
-use OneVsOne\Event\EventListener;
 use OneVsOne\Event\SetupListener;
 use OneVsOne\Util\ConfigManager;
-use pocketmine\command\Command;
-use pocketmine\command\CommandSender;
-use pocketmine\level\Position;
-use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
-use pocketmine\utils\Config;
 
 /**
  * Class Main
@@ -30,9 +23,6 @@ class Main extends PluginBase {
     /** @var  ConfigManager $configManager */
     public $configManager;
 
-    /** @var  EventListener $eventListener */
-    public $eventListener;
-
     /** @var  SetupListener $setupListener */
     public $setupListener;
 
@@ -47,9 +37,7 @@ class Main extends PluginBase {
         try {
             self::$instance = $this;
             $this->configManager = new ConfigManager($this);
-            $this->configManager->init();
             $this->getServer()->getPluginManager()->registerEvents($this->setupListener = new SetupListener($this), $this);
-            $this->configManager->loadArenas();
             $this->getServer()->getCommandMap()->register("1vs1", $this->oneVsOneCommand = new OneVsOneCommand());
         }
         catch (\Exception $exception) {

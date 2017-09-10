@@ -59,9 +59,17 @@ class ArenaListener implements Listener {
         if(strpos($event->getMessage(), "/") === 0) {
             if($this->plugin->phase != 0) {
                 if($event->getMessage() != "/1vs1 leave") {
-                    if($event->getPlayer()->getLevel()->getName() == $this->plugin->pos1->getLevel()->getName()) {
+                    if(in_array($event->getPlayer(), $this->plugin->players)) {
                         $event->setCancelled();
                         $event->getPlayer()->sendMessage("§cUse /1vs1 leave to leave match");
+                    }
+                }
+                else {
+                    if(in_array($event->getPlayer(), $this->plugin->players)) {
+                        unset($this->plugin->players[strtolower($event->getPlayer()->getName())]);
+                        $event->getPlayer()->getInventory()->clearAll();
+                        $event->getPlayer()->removeAllEffects();
+                        $event->getPlayer()->teleport($this->plugin->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
                     }
                 }
             }

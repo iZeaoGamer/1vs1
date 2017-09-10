@@ -74,22 +74,31 @@ class Arena {
      * @param Player $player
      */
     public function teleportToArena(Player $player) {
-        if(empty($this->players[0])) {
-            $player->teleport($this->pos1);
+        switch ($this->phase) {
+            case 0:
+                $player->sendMessage("§cArena is in setup mode!");
+                return;
+            case 2:
+                $player->sendMessage("§cArena is full");
+                return;
+            case 3:
+                $player->sendMessage("§cArena is InGame");
+                return;
+            case 4:
+                return;
         }
-        elseif(empty($this->players[1])) {
-            $player->teleport($this->pos2);
-        }
-        else {
-            $player->sendMessage("§cArenas are full");
-        }
-        $this->players[0] = $player;
+        //$this->players[0] = $player;
+        /* (.-.) */
+        //empty($this->players[0]) ? $this->players[0] = $player : empty($this->players[1]) ? $this->players[1] = $player : $this->players[0] = $player;
+        $this->players[strtolower($player->getName())];
         $count = count($this->players);
         foreach ($this->players as $players) {
             $players->sendMessage("§7[{$count}/2] §aPlayer {$player->getName()} joined.");
         }
         $player->setGamemode($player::ADVENTURE);
         $player->setHealth(20);
+        $player->setMaxHealth(20);
+        $player->removeAllEffects();
         $player->setFood(20);
         $player->getInventory()->clearAll();
         $inv = $player->getInventory();
@@ -97,5 +106,6 @@ class Arena {
         $inv->setChestplate(Item::get(Item::IRON_CHESTPLATE));
         $inv->setLeggings(Item::get(Item::IRON_LEGGINGS));
         $inv->setBoots(Item::get(Item::IRON_BOOTS));
+        $inv->setItem(0, Item::get(Item::STONE_SWORD));
     }
 }

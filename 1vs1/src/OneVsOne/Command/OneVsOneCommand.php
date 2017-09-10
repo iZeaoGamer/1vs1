@@ -112,6 +112,13 @@ class OneVsOneCommand extends Command implements PluginIdentifiableCommand {
                     return;
                 }
                 return;
+            case "leave":
+                if(!$sender->hasPermission("1vs1.cmd.leave")) {
+                    $sender->sendMessage("§cYou have not permissions to use this command");
+                    return;
+                }
+                $sender->sendMessage("§csoon... (try to use /reload)");
+                return;
             default:
                 $sender->sendMessage("§cUsage: §7/1vs1 help");
                 return;

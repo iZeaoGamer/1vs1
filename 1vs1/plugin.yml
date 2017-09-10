@@ -6,10 +6,6 @@ authors: [GamakCZ]
 description: Simple 1vs1 plugin for PocketMine
 main: OneVsOne\Main
 
-#commands:
-#  1vs1:
-#    description: 1vs1 commands
-
 permissions:
   1vs1:
     description: All 1vs1 permissions
@@ -25,5 +21,9 @@ permissions:
           1vs1.cmd.addarena:
             description: Permissions for /1vs1 addarena
             default: op
-
-
+          1vs1.cmd.set:
+            description: Permissions for /1vs1 set
+            default: op
+          1vs1.cmd.leave:
+            description: Permissions for /1vs1 leave
+            default: true
