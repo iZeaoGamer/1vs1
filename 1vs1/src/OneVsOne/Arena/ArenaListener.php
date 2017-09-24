@@ -2,18 +2,14 @@
 
 namespace OneVsOne\Arena;
 
-use OneVsOne\Main;
-use OneVsOne\Util\ConfigManager;
-use pocketmine\event\block\SignChangeEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerCommandPreprocessEvent;
+use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerInteractEvent;
-use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\Player;
-use pocketmine\tile\Sign;
 
 /**
  * Class ArenaListener
@@ -38,15 +34,19 @@ class ArenaListener implements Listener {
      */
     public function onTouch(PlayerInteractEvent $event) {
         $player = $event->getPlayer();
-        $pos1 = $this->plugin->signpos;
+        $pos1 = $this->getArena()->signpos;
         $pos2 = $event->getBlock()->asPosition();
-        /*if($pos1->getX() == $pos2->getX() && $pos1->getY() == $pos2->getY() && $pos1->getZ() == $pos2->getZ() && $pos2->getLevel()) {
-            $this->plugin->teleportToArena($player);
-        }*/
         if($pos1 != null) {
             if($pos1->equals($pos2->asVector3()) && $pos1->getLevel()->getName() == $pos2->getLevel()->getName()) {
-                $this->plugin->teleportToArena($player);
+                $this->getArena()->teleportToArena($player);
             }
+        }
+    }
+
+    public function onDeath(PlayerDeathEvent $event) {
+        $player = $event->getPlayer();
+        if($this->getArena()->inGame($player)) {
+            $this->getArena()->endGame($player);
         }
     }
 
@@ -54,8 +54,8 @@ class ArenaListener implements Listener {
      * @param PlayerQuitEvent $event
      */
     public function onQuit(PlayerQuitEvent $event) {
-        if(isset($this->plugin->players[strtolower($event->getPlayer()->getName())])) {
-            unset($this->plugin->players[strtolower($event->getPlayer()->getName())]);
+        if(isset($this->getArena()->players[strtolower($event->getPlayer()->getName())])) {
+            unset($this->getArena()->players[strtolower($event->getPlayer()->getName())]);
         }
     }
 
@@ -66,14 +66,14 @@ class ArenaListener implements Listener {
         $entity = $event->getEntity();
         if($entity instanceof Player) {
             $ingame = false;
-            foreach ($this->plugin->players as $player) {
+            foreach ($this->getArena()->players as $player) {
                 if($player->getName() == $entity->getName()) {
                     $ingame = true;
                 }
             }
             if($ingame == true) {
                 if($event instanceof EntityDamageByEntityEvent) {
-                    if($this->plugin->phase != 2) {
+                    if($this->getArena()->phase != 2) {
                         $event->setCancelled(true);
                     }
                 }
@@ -104,5 +104,9 @@ class ArenaListener implements Listener {
                 }
             }
         }
+    }
+
+    public function getArena():Arena {
+        return $this->plugin;
     }
 }

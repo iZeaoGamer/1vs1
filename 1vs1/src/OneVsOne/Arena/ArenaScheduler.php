@@ -30,7 +30,6 @@ class ArenaScheduler extends Task {
      * @param int $currentTick
      */
     public function onRun(int $currentTick) {
-        $this->infoDebug();
         switch ($this->plugin->phase) {
             case 0:
                 $this->updateSigns();
@@ -57,68 +56,52 @@ class ArenaScheduler extends Task {
         }
     }
 
-    public function infoDebug() {
-        $players = [];
-        foreach ($this->plugin->players as $player) {
-            array_push($players, $player->getName());
-        }
-        $logger = $this->plugin->plugin;
-        $logger->getLogger()->debug("§6Debug ".$this->debug.":");
-        $logger->getLogger()->debug("players: ".count($this->plugin->players). ": ".implode(", ", $players));
-        $logger->getLogger()->debug("phase: ".$this->plugin->phase);
-        $logger->getLogger()->debug("arena: ".$this->plugin->name);
-        $logger->getLogger()->debug("startTime: ".$this->plugin->startTime);
-        $logger->getLogger()->debug("gameTime: ".$this->plugin->gameTime);
-        $logger->getLogger()->debug("restartTime: ".$this->plugin->restartTime);
-        $this->debug++;
-    }
-
     public function countdown() {
-        switch ($this->plugin->phase) {
+        switch ($this->getArena()->phase) {
             case 0:
                 break;
             case 1:
                 // lobby
                 if(count($this->plugin->players) > 1) {
-                    $this->plugin->phase = 2;
+                    $this->getArena()->phase = 2;
                 }
                 break;
             case 2:
                 // full
                 if(count($this->plugin->players) > 1) {
-                    $this->plugin->startTime = $this->plugin->startTime-1;
+                    $this->getArena()->startTime = $this->getArena()->startTime-1;
                 }
                 break;
             case 3:
                 // ingame
                 if(count($this->plugin->players) > 1) {
-                    $this->plugin->gameTime = $this->plugin->gameTime-1;
+                    $this->getArena()->gameTime = $this->getArena()->gameTime-1;
                 }
                 break;
-            case 4:
+            /*case 4:
                 // restart
                 if(count($this->plugin->players) > 1) {
                     $this->plugin->restartTime = $this->plugin->restartTime-1;
                 }
-                break;
+                break;*/
         }
     }
 
     public function sendInfo() {
-        foreach ($this->plugin->players as $player) {
-            switch ($this->plugin->phase) {
+        foreach ($this->getArena()->players as $player) {
+            switch ($this->getArena()->phase) {
                 case 0:
                     // setup
                     break;
                 case 1:
                     // lobby
-                    $player->setXpLevel($this->plugin->startTime);
-                    if(count($this->plugin->players) <= 1) {
+                    $player->setXpLevel($this->getArena()->startTime);
+                    if(count($this->getArena()->players) <= 1) {
                         $player->sendPopup("§7You need more players...");
                     }
                     break;
                 case 2:
-                    $startTime = intval($this->plugin->startTime);
+                    $startTime = intval($this->getArena()->startTime);
                     switch ($startTime) {
                         case 30:
                         case 25:
@@ -137,6 +120,10 @@ class ArenaScheduler extends Task {
                     }
                     // full (countdown)
                     break;
+                case 3:
+                    $gameTime = intval($this->getArena()->gameTime);
+                    $player->setXpLevel($gameTime);
+                    break;
             }
         }
     }
@@ -145,7 +132,7 @@ class ArenaScheduler extends Task {
      * @param string $text
      * @return string
      */
-    function translateSigns(string $text):string {
+    public function translateSigns(string $text):string {
         $text = str_replace("%count", count($this->plugin->players), $text);
         $text = str_replace("%phase", $this->getPhase(), $text);
         $text = str_replace("%arena", $this->plugin->name, $text);
@@ -153,7 +140,7 @@ class ArenaScheduler extends Task {
         return $text;
     }
 
-    function getPhase() {
+    public function getPhase() {
         switch ($this->plugin->phase) {
             case 0:
                 return "§4Setup";
@@ -176,12 +163,19 @@ class ArenaScheduler extends Task {
             $level = $signPos->getLevel();
             $tile = $level->getTile($signPos->asVector3());
             if($tile instanceof Sign) {
-                $configManager = $this->plugin->plugin->configManager;
+                $configManager = $this->getArena()->plugin->configManager;
                 $tile->setText($this->translateSigns($configManager->getConfigData("SignLine-1")),
                     $this->translateSigns($configManager->getConfigData("SignLine-2")),
                     $this->translateSigns($configManager->getConfigData("SignLine-3")),
                     $this->translateSigns($configManager->getConfigData("SignLine-4")));
             }
         }
+    }
+
+    /**
+     * @return Arena
+     */
+    public function getArena():Arena {
+        return $this->plugin;
     }
 }

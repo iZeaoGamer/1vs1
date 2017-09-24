@@ -60,14 +60,18 @@ class Arena {
      * @param int $phase
      */
     public function __construct(Main $plugin, string $name, Position $pos1, Position $pos2, int $phase = 0) {
-        $this->phase = $phase;
+        $this->restart($phase);
         $this->plugin = $plugin;
         $this->name = $name;
         $this->pos1 = $pos1;
         $this->pos2 = $pos2;
-        $this->players = [];
         $this->plugin->getServer()->getPluginManager()->registerEvents($this->arenaListener = new ArenaListener($this), $this->plugin);
         $this->plugin->getServer()->getScheduler()->scheduleRepeatingTask($this->arenaScheduler = new ArenaScheduler($this), 20);
+    }
+
+    public function restart($phase = 1) {
+        $this->phase = 1;
+        $this->players = [];
     }
 
     /**
@@ -111,5 +115,49 @@ class Arena {
         $inv->setLeggings(Item::get(Item::IRON_LEGGINGS));
         $inv->setBoots(Item::get(Item::IRON_BOOTS));
         $inv->setItem(0, Item::get(Item::STONE_SWORD));
+    }
+
+    public function getSecondPlayer(Player $first):Player {
+        $return = $first;
+        foreach ($this->players as $player) {
+            if($player->getName() != $first) {
+                $return = $player;
+            }
+        }
+        return $return;
+    }
+
+    /**
+     * @param Player $death
+     */
+    public function endGame(Player $death) {
+        $player = $this->getSecondPlayer($death);
+        $death->addTitle("§cYOUR LOSE", "§6{$player->getName()} won.");
+        $player->addTitle("§aYOUR WON", "§6{$death->getName()} lose.");
+        foreach ([$death, $player] as $players) {
+            if($players instanceof Player) {
+                $players->setHealth(20);
+                $players->setFood(20);
+                $players->getInventory()->clearAll();
+                $players->removeAllEffects();
+                $players->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+                $players->sendMessage("§aGameTime: {$this->gameTime}");
+            }
+        }
+        $this->restart();
+    }
+
+    /**
+     * @param Player $player
+     * @return bool
+     */
+    public function inGame(Player $player):bool {
+        $ingame = false;
+        foreach ($this->players as $players) {
+            if($player->getName() == $players->getName()) {
+                $ingame = true;
+            }
+        }
+        return $ingame;
     }
 }
