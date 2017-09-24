@@ -60,17 +60,17 @@ class Arena {
      * @param int $phase
      */
     public function __construct(Main $plugin, string $name, Position $pos1, Position $pos2, int $phase = 0) {
-        $this->restart($phase);
         $this->plugin = $plugin;
         $this->name = $name;
         $this->pos1 = $pos1;
         $this->pos2 = $pos2;
         $this->plugin->getServer()->getPluginManager()->registerEvents($this->arenaListener = new ArenaListener($this), $this->plugin);
         $this->plugin->getServer()->getScheduler()->scheduleRepeatingTask($this->arenaScheduler = new ArenaScheduler($this), 20);
+        $this->restart($phase);
     }
 
     public function restart($phase = 1) {
-        $this->phase = 1;
+        $this->phase = $phase;
         $this->players = [];
     }
 

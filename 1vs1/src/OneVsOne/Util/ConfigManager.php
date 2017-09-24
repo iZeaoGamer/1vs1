@@ -44,25 +44,28 @@ class ConfigManager {
     }
 
     public function loadArenas() {
-        foreach (glob(self::getDataFolder()."arenas/*.yml") as $arenaData) {
-            $this->plugin->getLogger()->debug("§aLoading {$arenaData} arena...");
+        if(file_exists(self::getDataFolder()."arenas")) {
+            foreach (glob(self::getDataFolder()."arenas/*.yml") as $arenaData) {
+                $this->plugin->getLogger()->debug("§aLoading {$arenaData} arena...");
+                $this->loadArena($arenaData);
+            }
         }
     }
 
     /**
      * @param string $fileName
      */
-    final function loadArena(string $fileName) {
+    public function loadArena(string $fileName) {
         $name = basename($fileName, ".yml");
         $config = new Config(self::getDataFolder()."arenas/{$name}.yml", Config::YAML);
-        $arena = $this->plugin->arenas[$name] = new Arena($this->plugin, $name, $this->plugin->getServer()->getDefaultLevel()->getSpawnLocation(), $this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
-        $arena->name = $name;
         $pos1 = (array)$config->get("pos1");
         $pos2 = (array)$config->get("pos2");
         $signPos = (array)$config->get("signpos");
+        $arena = $this->plugin->arenas[$name] = new Arena($this->plugin, $name, $this->plugin->getServer()->getDefaultLevel()->getSpawnLocation(), $this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+        $arena->name = $name;
         $arena->pos1 = new Position(intval($pos1[0]), intval($pos1[1]), intval($pos1[2]), $this->plugin->getServer()->getLevelByName($pos1[3]));
         $arena->pos2 = new Position(intval($pos2[0]), intval($pos2[1]), intval($pos2[2]), $this->plugin->getServer()->getLevelByName($pos2[3]));
-        $arena->signpos = new Position(intval($signPos[0]), intval($signPos[1]), intval($signPos[2]), $this->plugin->getServer()->getLevelByName($signPos[3]));
+        $arena->signpos = new Position(intval($signPos[0]), intval($signPos[1]), intval($signPos[2]), $this->plugin->getServer()->getLevelByName(strval($signPos[3])));
     }
 
     public function saveAll() {

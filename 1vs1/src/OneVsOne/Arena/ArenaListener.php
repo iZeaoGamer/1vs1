@@ -43,6 +43,9 @@ class ArenaListener implements Listener {
         }
     }
 
+    /**
+     * @param PlayerDeathEvent $event
+     */
     public function onDeath(PlayerDeathEvent $event) {
         $player = $event->getPlayer();
         if($this->getArena()->inGame($player)) {
@@ -86,20 +89,21 @@ class ArenaListener implements Listener {
      */
     public function onCommandPreprocess(PlayerCommandPreprocessEvent $event) {
         if(strpos($event->getMessage(), "/") === 0) {
-            if($this->plugin->phase != 0) {
+            if($this->getArena()->phase != 0) {
                 if($event->getMessage() != "/1vs1 leave") {
-                    if(in_array($event->getPlayer(), $this->plugin->players)) {
-                        $event->setCancelled();
+                    if($this->getArena()->inGame($event->getPlayer())) {
                         $event->getPlayer()->sendMessage("§cUse /1vs1 leave to leave match");
+                        $event->setCancelled();
                     }
                 }
                 else {
-                    if(in_array($event->getPlayer(), $this->plugin->players)) {
-                        unset($this->plugin->players[strtolower($event->getPlayer()->getName())]);
+                    if($this->getArena()->inGame($event->getPlayer())) {
+                        unset($this->getArena()->players[strtolower($event->getPlayer()->getName())]);
                         $event->getPlayer()->setGamemode(Player::SURVIVAL);
                         $event->getPlayer()->getInventory()->clearAll();
                         $event->getPlayer()->removeAllEffects();
-                        $event->getPlayer()->teleport($this->plugin->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+                        $event->getPlayer()->teleport($this->getArena()->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+                        $event->setCancelled();
                     }
                 }
             }

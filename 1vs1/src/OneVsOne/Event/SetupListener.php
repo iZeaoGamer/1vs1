@@ -50,6 +50,10 @@ class SetupListener implements Listener {
                     "§7enable : enable arena");
                     break;
                 case "setpos":
+                    if(empty($args[1])) {
+                        $player->sendMessage("§cUsage: §7setpos <1-2>");
+                        break;
+                    }
                     switch (strval($args[1])) {
                         case "1":
                             $arena->pos1 = $player->getPosition();
@@ -91,7 +95,7 @@ class SetupListener implements Listener {
         $player = $event->getPlayer();
         $arena = $this->plugin->arenas[$this->players[strtolower($player->getName())]];
         if(isset($this->updates[strtolower($player->getName())]) && $this->updates[strtolower($player->getName())] == 1) {
-            if($event->getBlock()->getId() == Block::STANDING_SIGN) {
+            if($event->getBlock()->getId() == Block::STANDING_SIGN || $event->getBlock() == Block::WALL_SIGN) {
                 $player->sendMessage("§aSign successfully set.");
                 $arena->signpos = $event->getBlock()->asPosition();
                 unset($this->updates[strtolower($player->getName())]);
