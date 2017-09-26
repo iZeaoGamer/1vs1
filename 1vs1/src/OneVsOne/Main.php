@@ -6,7 +6,6 @@ use OneVsOne\Arena\Arena;
 use OneVsOne\Command\OneVsOneCommand;
 use OneVsOne\Event\SetupListener;
 use OneVsOne\Util\ConfigManager;
-use pocketmine\level\Position;
 use pocketmine\plugin\PluginBase;
 
 /**

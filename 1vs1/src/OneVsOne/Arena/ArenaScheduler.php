@@ -2,15 +2,16 @@
 
 namespace OneVsOne\Arena;
 
+use OneVsOne\Task\OneVsOneTask;
+use pocketmine\level\Level;
 use pocketmine\level\Position;
-use pocketmine\scheduler\Task;
 use pocketmine\tile\Sign;
 
 /**
  * Class ArenaScheduler
  * @package OneVsOne\Arena
  */
-class ArenaScheduler extends Task {
+class ArenaScheduler extends OneVsOneTask {
 
     /** @var  Arena $plugin */
     public $plugin;
@@ -161,6 +162,9 @@ class ArenaScheduler extends Task {
         $signPos = $this->plugin->signpos;
         if($signPos instanceof Position) {
             $level = $signPos->getLevel();
+            if(!$level instanceof Level) {
+                return;
+            }
             $tile = $level->getTile($signPos->asVector3());
             if($tile instanceof Sign) {
                 $configManager = $this->getArena()->plugin->configManager;

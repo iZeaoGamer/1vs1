@@ -3,6 +3,7 @@
 namespace OneVsOne\Command;
 
 use OneVsOne\Arena\Arena;
+use OneVsOne\ArenaManager;
 use OneVsOne\Main;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
@@ -60,12 +61,14 @@ class OneVsOneCommand extends Command implements PluginIdentifiableCommand {
                     return;
                 }
                 $sender->sendMessage("§7-- == [ 1vs1 ] == --\n".
-                    "§7/1vs1 addarena : add arena\n".
+                    "§7/1vs1 create : add arena\n".
                     "§7/1vs1 set : set arena\n".
+                    "§7/1vs1 arenas : displays list of arenas\n".
+                    "§7/1vs1 join : join arena\n".
                     "§7/1vs1 leave : leave arena");
                 return;
-            case "addarena":
-                if(!$sender->hasPermission("1vs1.cmd.addarena")) {
+            case "create":
+                if(!$sender->hasPermission("1vs1.cmd.create")) {
                     $sender->sendMessage("§cYou have not permissions to use this command");
                     return;
                 }
@@ -81,7 +84,7 @@ class OneVsOneCommand extends Command implements PluginIdentifiableCommand {
                 $sender->sendMessage("§aTo complete arena setup write /1vs1 set <arena>");
                 return;
             case "set":
-                if(!$sender->hasPermission("1vs1.cmd.addarena")) {
+                if(!$sender->hasPermission("1vs1.cmd.set")) {
                     $sender->sendMessage("§cYou have not permissions to use this command");
                     return;
                 }
@@ -102,6 +105,17 @@ class OneVsOneCommand extends Command implements PluginIdentifiableCommand {
                 $this->plugin->arenas[$args[1]]->phase = 0;
                 $this->plugin->setupListener->players[strtolower($sender->getName())] = $args[1];
                 $sender->sendMessage("§aYou are now in setup mode!");
+                return;
+
+            case "arenas":
+                if(!$sender->hasPermission("1vs1.cmd.arenas")) {
+                    $sender->sendMessage("§cYou have not permissions to use this command");
+                    return;
+                }
+                $sender->sendMessage("§aArenas: §7(".count(ArenaManager::getArenasNames()).")§7 ".ArenaManager::getArenasNames().".");
+                return;
+            case "join":
+                $sender->sendMessage("§csoon...");
                 return;
             default:
                 $sender->sendMessage("§cUsage: §7/1vs1 help");

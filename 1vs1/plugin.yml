@@ -18,12 +18,18 @@ permissions:
           1vs1.cmd.help:
             description: Permissions for /1vs1 help
             default: op
-          1vs1.cmd.addarena:
+          1vs1.cmd.create:
             description: Permissions for /1vs1 addarena
             default: op
           1vs1.cmd.set:
             description: Permissions for /1vs1 set
             default: op
+          1vs1.cmd.areas:
+            description: Permissions for /1vs1 arenas
+            default: op
+          1vs1.cmd.join:
+            description: Permissions for /1vs1 join
+            default: true
           1vs1.cmd.leave:
             description: Permissions for /1vs1 leave
             default: true

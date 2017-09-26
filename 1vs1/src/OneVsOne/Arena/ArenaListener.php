@@ -104,6 +104,7 @@ class ArenaListener implements Listener {
                         $event->getPlayer()->removeAllEffects();
                         $event->getPlayer()->teleport($this->getArena()->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
                         $event->setCancelled();
+                        $event->getPlayer()->sendMessage("§aYou are leaved match.");
                     }
                 }
             }
