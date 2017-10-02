@@ -9,7 +9,7 @@ use pocketmine\utils\Config;
 
 /**
  * Class LoadArenaTask
- * @package OneVsOne\Task
+ * @package OneVsOne\task
  */
 class LoadArenaTask extends OneVsOneTask {
 

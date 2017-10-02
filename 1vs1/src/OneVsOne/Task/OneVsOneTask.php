@@ -8,7 +8,7 @@ use pocketmine\Server;
 
 /**
  * Class OneVsOneTask
- * @package OneVsOne\Task
+ * @package OneVsOne\task
  */
 abstract class  OneVsOneTask extends Task {
 
