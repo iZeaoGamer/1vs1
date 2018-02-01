@@ -1,185 +1,117 @@
 <?php
 
-namespace OneVsOne\Arena;
+declare(strict_types=1);
 
-use OneVsOne\Task\OneVsOneTask;
-use pocketmine\level\Level;
+namespace onevsone\arena;
+
+use onevsone\OneVsOne;
+use onevsone\utis\Time;
 use pocketmine\level\Position;
+use pocketmine\Player;
+use pocketmine\scheduler\Task;
 use pocketmine\tile\Sign;
 
 /**
  * Class ArenaScheduler
- * @package OneVsOne\Arena
+ * @package onevsone\arena
  */
-class ArenaScheduler extends OneVsOneTask {
+class ArenaScheduler extends Task {
 
-    /** @var  Arena $plugin */
+    /** @var Arena $plugin */
     public $plugin;
-
-    /** @var  int $debug */
-    public $debug = 1;
 
     /**
      * ArenaScheduler constructor.
-     * @param Arena $plugin
+     * @param Arena $arena
      */
-    public function __construct(Arena $plugin) {
-        $this->plugin = $plugin;
+    public function __construct(Arena $arena) {
+        $this->plugin = $arena;
     }
 
     /**
      * @param int $currentTick
      */
     public function onRun(int $currentTick) {
-        switch ($this->plugin->phase) {
-            case 0:
-                $this->updateSigns();
-                break;
-            // lobby
-            case 1:
-                $this->updateSigns();
-                $this->countdown();
-                $this->sendInfo();
-                break;
-            // full
-            case 2:
-                $this->updateSigns();
-                $this->countdown();
-                break;
-            case 3:
-                $this->updateSigns();
-                $this->countdown();
-                break;
-            case 4:
-                $this->updateSigns();
-                $this->countdown();
-                break;
+        if($this->plugin->phase === 0) {
+            $this->lobby();
         }
+        elseif ($this->plugin->phase === 1) {
+            $this->game();
+        }
+        else {
+            $this->restart();
+        }
+        $this->refreshSign();
     }
 
-    public function countdown() {
-        switch ($this->getArena()->phase) {
-            case 0:
-                break;
-            case 1:
-                // lobby
-                if(count($this->plugin->players) > 1) {
-                    $this->getArena()->phase = 2;
-                }
-                break;
-            case 2:
-                // full
-                if(count($this->plugin->players) > 1) {
-                    $this->getArena()->startTime = $this->getArena()->startTime-1;
-                }
-                break;
-            case 3:
-                // ingame
-                if(count($this->plugin->players) > 1) {
-                    $this->getArena()->gameTime = $this->getArena()->gameTime-1;
-                }
-                break;
-            /*case 4:
-                // restart
-                if(count($this->plugin->players) > 1) {
-                    $this->plugin->restartTime = $this->plugin->restartTime-1;
-                }
-                break;*/
+    public function refreshSign() {
+        $data = $this->plugin->config["sign"];
+        if(!$this->plugin->plugin->getServer()->isLevelGenerated($data[3])) {
+            return;
         }
+        $pos = new Position($data[0], $data[1], $data[2], $this->plugin->plugin->getServer()->getLevelByName($data[3]));
+        $sign = $pos->getLevel()->getTile($pos);
+        if(!$sign instanceof Sign) {
+            return;
+        }
+
+        /** @var int $status */
+        $status = $this->plugin->phase === 0 ? (count($this->plugin->getPlayers()) == 2 ? 1 : 0) : $this->plugin->phase;
+
+        $sign->setLine(0, Arena::SIGN_PREFIX, true);
+        $sign->setLine(1, str_replace("%p", count($this->plugin->getPlayers()), Arena::SIGN_SLOTS), true);
+        $sign->setLine(2, Arena::SIGN_STATUS[$status], true);
+        $sign->setLine(3, str_replace("%m", $this->plugin->config["level"], Arena::SIGN_MAP), true);
     }
 
-    public function sendInfo() {
-        foreach ($this->getArena()->players as $player) {
-            switch ($this->getArena()->phase) {
-                case 0:
-                    // setup
-                    break;
-                case 1:
-                    // lobby
-                    $player->setXpLevel($this->getArena()->startTime);
-                    if(count($this->getArena()->players) <= 1) {
-                        $player->sendPopup("§7You need more players...");
-                    }
-                    break;
-                case 2:
-                    $startTime = intval($this->getArena()->startTime);
-                    switch ($startTime) {
-                        case 30:
-                        case 25:
-                        case 20:
-                        case 15:
-                        case 10:
-                        case 5:
-                        case 3:
-                        case 2:
-                        case 1:
-                            $player->sendMessage("§7Battle starts in {$startTime}");
-                            break;
-                        case 0:
-                            $player->addTitle("§aBattle started!");
-                            break;
-                    }
-                    // full (countdown)
-                    break;
-                case 3:
-                    $gameTime = intval($this->getArena()->gameTime);
-                    $player->setXpLevel($gameTime);
-                    break;
+    public function lobby() {
+
+        if(($player1 = $this->plugin->player1) instanceof Player && ($player2 = $this->plugin->player2) instanceof Player) {
+            foreach ($this->plugin->getPlayers() as $player) {
+                if($player instanceof Player) {
+                    $player2->sendTip(OneVsOne::getPrefix()."§f|| §cWait for players.");
+                }
+            }
+        }
+
+        else {
+
+            /** @var Player $player */
+            foreach ($this->plugin->getPlayers() as $player) {
+                $player->sendTip(OneVsOne::getPrefix()."§f|| §6Starting in {$this->plugin->startTime} sec!");
+            }
+
+            $this->plugin->startTime--;
+
+            if($this->plugin->startTime <= 0) {
+                $this->plugin->phase = 1;
             }
         }
     }
 
-    /**
-     * @param string $text
-     * @return string
-     */
-    public function translateSigns(string $text):string {
-        $text = str_replace("%count", count($this->plugin->players), $text);
-        $text = str_replace("%phase", $this->getPhase(), $text);
-        $text = str_replace("%arena", $this->plugin->name, $text);
-        $text = str_replace("&", "§", $text);
-        return $text;
-    }
-
-    public function getPhase() {
-        switch ($this->plugin->phase) {
-            case 0:
-                return "§4Setup";
-            case 1:
-                return "§aLobby";
-            case 2:
-                return "§6Full";
-            case 3:
-                return "§5InGame";
-            case 4:
-                return "§3Restarting...";
-            default:
-                return "§aLobby";
+    public function game() {
+        foreach ($this->plugin->getPlayers() as $player) {
+            $player->addTitle(
+                str_repeat(" ", 60). "§6--- == [ 1vs1 ] == ---\n".
+                     str_repeat(" ", 60). "§7PvP Time: ".Time::calculateTime($this->plugin->gameTime)." sec!"
+            );
         }
     }
 
-    public function updateSigns() {
-        $signPos = $this->plugin->signpos;
-        if($signPos instanceof Position) {
-            $level = $signPos->getLevel();
-            if(!$level instanceof Level) {
-                return;
-            }
-            $tile = $level->getTile($signPos->asVector3());
-            if($tile instanceof Sign) {
-                $configManager = $this->getArena()->plugin->configManager;
-                $tile->setText($this->translateSigns($configManager->getConfigData("SignLine-1")),
-                    $this->translateSigns($configManager->getConfigData("SignLine-2")),
-                    $this->translateSigns($configManager->getConfigData("SignLine-3")),
-                    $this->translateSigns($configManager->getConfigData("SignLine-4")));
-            }
+    public function restart() {
+        foreach ($this->plugin->getPlayers() as $player) {
+            $player->sendTip(OneVsOne::getPrefix()."§f|| §aRestarting in {$this->plugin->restartTime} sec!");
         }
-    }
-
-    /**
-     * @return Arena
-     */
-    public function getArena():Arena {
-        return $this->plugin;
+        if($this->plugin->restartTime <= 0) {
+            foreach ($this->plugin->getPlayers() as $player) {
+                $player->teleport($this->plugin->plugin->getServer()->getDefaultLevel()->getSafeSpawn());
+                $player->setGamemode($this->plugin->plugin->getServer()->getDefaultGamemode());
+                $player->setHealth(20);
+                $player->setFood(20);
+                $player->setXpLevel(0);
+                $player->setXpProgress(0);
+            }
+            $this->plugin->loadGame();
+        }
     }
 }

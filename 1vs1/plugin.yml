@@ -1,35 +1,16 @@
 name: 1vs1
-api: [3.0.0-ALPHA7, 3.0.0-ALPHA8]
-version: 1.0.0 [DEV]
+api: [3.0.0-ALPHA9, 3.0.0-ALPHA10]
+version: 1.0.1 [Rewriten]
+description: 1vs1 minigame plugin
 author: CzechPMDevs
-authors: [GamakCZ]
-description: Simple 1vs1 plugin for PocketMine
-main: OneVsOne\Main
+authors: [VixikCZ]
+main: onevsone\OneVsOne
+
+commands:
+  1vs1:
+    description: 1vs1 commands
 
 permissions:
-  1vs1:
-    description: All 1vs1 permissions
+  1vs1.cmd:
+    description: Permission for all 1vs1 commands
     default: op
-    children:
-      1vs1.cmd:
-        description: All 1vs1 permissions for commands
-        default: op
-        children:
-          1vs1.cmd.help:
-            description: Permissions for /1vs1 help
-            default: op
-          1vs1.cmd.create:
-            description: Permissions for /1vs1 addarena
-            default: op
-          1vs1.cmd.set:
-            description: Permissions for /1vs1 set
-            default: op
-          1vs1.cmd.areas:
-            description: Permissions for /1vs1 arenas
-            default: op
-          1vs1.cmd.join:
-            description: Permissions for /1vs1 join
-            default: true
-          1vs1.cmd.leave:
-            description: Permissions for /1vs1 leave
-            default: true

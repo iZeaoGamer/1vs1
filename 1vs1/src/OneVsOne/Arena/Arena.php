@@ -1,163 +1,241 @@
 <?php
 
-namespace OneVsOne\Arena;
+declare(strict_types=1);
 
-use OneVsOne\Main;
-use pocketmine\item\Item;
+namespace onevsone\arena;
+
+use onevsone\ArenaManager;
+use onevsone\OneVsOne;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\entity\EntityLevelChangeEvent;
+use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\level\Position;
 use pocketmine\Player;
+use pocketmine\tile\Sign;
 
 /**
  * Class Arena
- * @package OneVsOne\Arena
+ * @package onevsone\arena
  */
-class Arena {
+class Arena implements Listener {
 
-    /** @var Main $plugin */
+    const SIGN_PREFIX = "§6§l[1vs1]";
+    const SIGN_SLOTS = "§9[ §b%p §3/ §b2 §9]";
+    const SIGN_STATUS = ["§aLobby", "§eFull", "§cInGame", "§2Restarting..."];
+    const SIGN_MAP = "§8Map: §7%m";
+
+    /** @var Player $player1 */
+    public $player1 = null;
+
+    /** @var Player $player2 */
+    public $player2 = null;
+
+    /** @var int $phase */
+    public $phase = 0;
+
+    /** @var array $config */
+    public $config = [];
+
+    /** @var OneVsOne $plugin */
     public $plugin;
 
-    /** @var  ArenaListener $arenaListener */
-    public $arenaListener;
+    /** @var int $startTime */
+    public $startTime = 10;
 
-    /** @var  ArenaScheduler $arenaScheduler */
-    public $arenaScheduler;
+    /** @var int $gameTime */
+    public $gameTime = 600;
 
-    /** @var  string $name */
-    public $name;
-
-    /** @var  Position|null $signpos */
-    public $signpos;
-
-    /**
-     * @var $pos1 Position
-     * @var $pos2 Position
-     */
-    public $pos1, $pos2;
-
-    /** @var  Player[] $players */
-    public $players = [];
-
-    /**
-     * @var int $phase
-     *
-     * 0 => setup
-     * 1 => lobby
-     * 2 => (full)
-     * 3 => ingame
-     * 4 => (restart)
-     */
-    public $phase = 1;
-
-    /** @var  int $time */
-    public $startTime = 31, $gameTime = 301, $restartTime = 16;
+    /** @var int $restartTime */
+    public $restartTime = 10;
 
     /**
      * Arena constructor.
-     * @param Main $plugin
-     * @param string $name
-     * @param Position $pos1
-     * @param Position $pos2
-     * @param int $phase
+     * @param ArenaManager $arenaMgr
+     * @param array $config
      */
-    public function __construct(Main $plugin, string $name, Position $pos1, Position $pos2, int $phase = 0) {
-        $this->plugin = $plugin;
-        $this->name = $name;
-        $this->pos1 = $pos1;
-        $this->pos2 = $pos2;
-        $this->plugin->getServer()->getPluginManager()->registerEvents($this->arenaListener = new ArenaListener($this), $this->plugin);
-        $this->plugin->getServer()->getScheduler()->scheduleRepeatingTask($this->arenaScheduler = new ArenaScheduler($this), 20);
-        $this->restart($phase);
+    public function __construct(ArenaManager $arenaMgr, array $config) {
+        $this->plugin = $arenaMgr->plugin;
+        $this->config = $config;
+        $this->loadGame();
     }
 
-    public function restart($phase = 1) {
-        $this->phase = $phase;
-        $this->players = [];
+    public function loadGame() {
+        $this->startTime = 10;
+        $this->gameTime = 600;
+        $this->restartTime = 10;
+        $this->player1 = null;
+        $this->player2 = null;
+        $this->phase = 0;
     }
 
     /**
      * @param Player $player
      */
-    public function teleportToArena(Player $player) {
-        switch ($this->phase) {
-            case 0:
-                $player->sendMessage("§cArena is in setup mode!");
-                return;
-            case 2:
-                $player->sendMessage("§cArena is full");
-                return;
-            case 3:
-                $player->sendMessage("§cArena is InGame");
-                return;
-            case 4:
-                $player->sendMessage("§cArena restarting...");
-                return;
+    public function joinPlayer(Player $player) {
+        if($this->player1 === null) {
+            $this->player1 = $player;
+            $player->teleport($this->plugin->getServer()->getLevelByName($this->config["level"])->getSpawnLocation());
+            $player->teleport($this->config["spawn"]["1"][0], $this->config["spawn"]["1"][1], $this->config["spawn"][2]);
         }
-        $this->players[strtolower($player->getName())] = $player;
-        $count = count($this->players);
-        if($count == 1) {
-            $player->teleport($this->pos2);
+        elseif($this->player2 === null) {
+            $this->player2 = $player;
+            $player->teleport($this->plugin->getServer()->getLevelByName($this->config["level"])->getSpawnLocation());
+            $player->teleport($this->config["spawn"]["2"][0], $this->config["spawn"]["1"][1], $this->config["spawn"][2]);
         }
         else {
-            $player->teleport($this->pos1);
+            $player->sendMessage(OneVsOne::getPrefix()."§cArena is full!");
+            return;
         }
-        foreach ($this->players as $players) {
-            $players->sendMessage("§7[{$count}/2] §aPlayer {$player->getName()} joined.");
-        }
-        $player->setGamemode($player::ADVENTURE);
-        $player->setHealth(20);
-        $player->setMaxHealth(20);
-        $player->removeAllEffects();
-        $player->setFood(20);
-        $player->getInventory()->clearAll();
-        $inv = $player->getInventory();
-        $inv->setHelmet(Item::get(Item::IRON_HELMET));
-        $inv->setChestplate(Item::get(Item::IRON_CHESTPLATE));
-        $inv->setLeggings(Item::get(Item::IRON_LEGGINGS));
-        $inv->setBoots(Item::get(Item::IRON_BOOTS));
-        $inv->setItem(0, Item::get(Item::STONE_SWORD));
-    }
-
-    public function getSecondPlayer(Player $first):Player {
-        $return = $first;
-        foreach ($this->players as $player) {
-            if($player->getName() != $first) {
-                $return = $player;
-            }
-        }
-        return $return;
-    }
-
-    /**
-     * @param Player $death
-     */
-    public function endGame(Player $death) {
-        $player = $this->getSecondPlayer($death);
-        $death->addTitle("§cYOUR LOSE", "§6{$player->getName()} won.");
-        $player->addTitle("§aYOUR WON", "§6{$death->getName()} lose.");
-        foreach ([$death, $player] as $players) {
-            if($players instanceof Player) {
-                $players->setHealth(20);
-                $players->setFood(20);
-                $players->getInventory()->clearAll();
-                $players->removeAllEffects();
-                $players->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
-                $players->sendMessage("§aGameTime: {$this->gameTime}");
-            }
-        }
-        $this->restart();
     }
 
     /**
      * @param Player $player
      * @return bool
      */
-    public function inGame(Player $player):bool {
-        $ingame = false;
-        foreach ($this->players as $players) {
-            if($player->getName() == $players->getName()) {
-                $ingame = true;
+    public function inGame(Player $player): bool {
+        if($player->getName() == $this->player1->getName()) {
+            return true;
+        }
+        elseif($player->getName() == $this->player2->getName()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * @return Player[] $players
+     */
+    public function getPlayers(): array {
+        $players = [];
+        if($this->player1 instanceof Player) {
+            array_push($players, $this->player1);
+        }
+        if($this->player2 instanceof Player) {
+            array_push($players, $this->player2);
+        }
+        return $players;
+    }
+
+    /**
+     * @param PlayerInteractEvent $event
+     */
+    public function onInteract(PlayerInteractEvent $event) {
+        $player = $event->getPlayer();
+
+        $tile = $player->getLevel()->getTile($event->getBlock()->asVector3());
+
+        if(!$tile instanceof Sign) {
+            $sign = $this->config["sign"];
+            $pos = new Position($sign[0], $sign[1], $sign[2], $this->plugin->getServer()->getLevelByName($sign[3]));
+            if($pos->equals($event->getBlock()->asVector3())) {
+                $this->joinPlayer($player);
             }
         }
-        return $ingame;
+    }
+
+    /**
+     * @param EntityLevelChangeEvent $event
+     */
+    public function onLevelChange(EntityLevelChangeEvent $event) {
+        $player = $event->getEntity();
+        if(!$player instanceof Player) {
+            return;
+        }
+        if(!$this->inGame($player)) {
+            return;
+        }
+        if($this->phase === 0) {
+            if($player->getName() == $this->player1->getName()) {
+                $this->player1 = null;
+            }
+            else {
+                $this->player2 = null;
+            }
+            $player->sendMessage(OneVsOne::getPrefix()."§a1vs1 arena successfully leaved!");
+        }
+        elseif($this->phase === 1) {
+            /** @var Player $winner */
+            $winner = null;
+            if($player->getName() == $this->player1->getName()) {
+                $this->player1 = null;
+                $winner = $this->player2;
+            }
+            else {
+                $this->player2 = null;
+                $winner = $this->player1;
+            }
+            $player->sendMessage(OneVsOne::getPrefix()."§a1vs1 arena successfully leaved!");
+            $winner->addTitle("§aYOU WON!", "§7{$player->getName()} lost.");
+            $this->phase = 2;
+        }
+    }
+
+    public function onQuit(PlayerQuitEvent $event) {
+        $player = $event->getPlayer();
+        if(!$this->inGame($player)) {
+            return;
+        }
+        if($this->phase === 0) {
+            if($player->getName() == $this->player1->getName()) {
+                $this->player1 = null;
+            }
+            else {
+                $this->player2 = null;
+            }
+            $player->sendMessage(OneVsOne::getPrefix()."§a1vs1 arena successfully leaved!");
+        }
+        elseif($this->phase === 1) {
+            /** @var Player $winner */
+            $winner = null;
+            if($player->getName() == $this->player1->getName()) {
+                $this->player1 = null;
+                $winner = $this->player2;
+            }
+            else {
+                $this->player2 = null;
+                $winner = $this->player1;
+            }
+            $player->sendMessage(OneVsOne::getPrefix()."§a1vs1 arena successfully leaved!");
+            $winner->addTitle("§aYOU WON!", "§7{$player->getName()} lost.");
+            $this->phase = 2;
+        }
+    }
+
+    /**
+     * @param EntityDamageEvent $event
+     */
+    public function onDamage(EntityDamageEvent $event) {
+        $entity = $event->getEntity();
+        if(!$entity instanceof Player) {
+            return;
+        }
+        $lastDmg = $entity->getLastDamageCause();
+        if(!$lastDmg instanceof EntityDamageByEntityEvent) {
+            return;
+        }
+        $damager = $lastDmg->getDamager();
+        if(!$damager instanceof Player) {
+            return;
+        }
+        if(!$this->inGame($entity)) {
+            return;
+        }
+        if(!$this->inGame($damager)) {
+            $event->setCancelled(true);
+            return;
+        }
+        if($entity->getHealth()-$lastDmg->getDamage() <= 0) {
+            $event->setCancelled(true);
+            $entity->setGamemode($entity::SPECTATOR);
+            $entity->addTitle("§cYOU LOST!", "§7{$damager->getName()} won.");
+            $damager->addTitle("§aYOU WON!", "§7{$entity->getName()} lost.");
+            $this->phase = 2;
+            return;
+        }
     }
 }

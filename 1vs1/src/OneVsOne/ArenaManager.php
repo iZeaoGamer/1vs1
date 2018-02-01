@@ -1,30 +1,49 @@
 <?php
 
-namespace OneVsOne;
+declare(strict_types=1);
 
-use OneVsOne\Arena\Arena;
+namespace onevsone;
+
+use onevsone\arena\Arena;
+use pocketmine\utils\Config;
 
 /**
  * Class ArenaManager
- * @package OneVsOne
+ * @package onevsone
  */
 class ArenaManager {
 
-    /**
-     * @return Arena[] $arenas
-     */
-    public static function getArenas():array {
-        return Main::getInstance()->arenas;
+    /** @var OneVsOne $plugin */
+    public $plugin;
+
+    /** @var array $arenas */
+    public $arenas = [];
+
+    public function __construct(OneVsOne $plugin) {
+        $this->plugin = $plugin;
+        $this->loadArenas();
     }
 
-    /**
-     * @return string[] $arenas
-     */
-    public static function getArenasNames():array  {
-       $arenas = [];
-       foreach (self::getArenas() as $name => $arena) {
-           array_push($arenas, $name);
-       }
-       return $arenas;
+    public function loadArenas() {
+        foreach (glob($this->plugin->getDataFolder()."arenas/*.yml") as $file) {
+            $config = new Config($file, Config::YAML);
+            $this->arenas[basename($file, ".yml")] = new Arena($this, $config->getAll());
+        }
     }
+
+    public function arenaExists(string $name):bool {
+        return boolval(isset($this->arenas[$name]));
+    }
+
+    public function createArena(string $name) {
+        $this->arenas[$name] = new Arena($this, [
+            "level" => null,
+            "sign" => [],
+            "spawn" => [
+                "1" => [],
+                "2" => []
+            ]
+        ]);
+    }
+
 }
