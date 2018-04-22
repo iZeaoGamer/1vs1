@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace onevsone\arena;
+namespace OneVsOne\Arena;
 
 use onevsone\ArenaManager;
 use onevsone\OneVsOne;
