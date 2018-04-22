@@ -27,7 +27,7 @@ class ArenaManager {
     public function loadArenas() {
         foreach (glob($this->plugin->getDataFolder()."arenas/*.yml") as $file) {
             $config = new Config($file, Config::YAML);
-            $this->arenas[basename($file, ".yml")] = new Arena($this, $config->getAll());
+            $this->arenas[basename($file, ".yml")] = new arena\Arena($this, $config->getAll());
         }
     }
 
