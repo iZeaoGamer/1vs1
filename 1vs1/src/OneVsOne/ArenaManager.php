@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace onevsone;
+namespace OneVsOne;
 
 use onevsone\arena\Arena;
 use pocketmine\utils\Config;
