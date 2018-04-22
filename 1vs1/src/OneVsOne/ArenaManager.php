@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace OneVsOne;
 
-use OneVsOne\arena\Arena;
+use OneVsOne\Arena\Arena;
 use pocketmine\utils\Config;
 
 /**
@@ -27,7 +27,7 @@ class ArenaManager {
     public function loadArenas() {
         foreach (glob($this->plugin->getDataFolder()."arenas/*.yml") as $file) {
             $config = new Config($file, Config::YAML);
-            $this->arenas[basename($file, ".yml")] = new arena\Arena($this, $config->getAll());
+            $this->arenas[basename($file, ".yml")] = new Arena\Arena($this, $config->getAll());
         }
     }
 
