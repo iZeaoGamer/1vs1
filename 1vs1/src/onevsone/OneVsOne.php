@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace onevsone;
 
-use onevsone\arena\Arena;
+use OneVsOne\arena\Arena;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\event\Listener;
