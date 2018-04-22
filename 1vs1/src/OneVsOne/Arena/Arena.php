@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace OneVsOne\Arena;
 
-use onevsone\ArenaManager;
+use OneVsOne\ArenaManager;
 use onevsone\OneVsOne;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
