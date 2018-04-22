@@ -26,7 +26,7 @@ class OneVsOne extends PluginBase implements Listener {
     public function onEnable() {
         self::$instance = $this;
         $this->initConfig();
-        $this->arenaMgr = new ArenaManager($this);
+        $this->arenaMgr = new \OneVsOne\ArenaManager($this);
     }
 
     public function initConfig() {
