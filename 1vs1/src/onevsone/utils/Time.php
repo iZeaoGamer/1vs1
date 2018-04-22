@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace onevsone\utis;
+namespace onevsone\utils;
 
 /**
  * Class Time
